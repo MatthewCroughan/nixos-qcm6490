@@ -13,6 +13,7 @@ buildUBoot {
   src = builtins.fetchGit {
     url = "https://github.com/u-boot/u-boot.git";
     rev = "2b1c8d3b2da46ce0f7108f279f04bc66f1d8d09a";
+    allRefs = true;
   };
   prePatch = ''
     substituteInPlace configs/qcm6490_defconfig --replace-fail 'qcom/qcs6490-rb3gen2' 'qcom/qcm6490-shift-otter'
