@@ -18,7 +18,7 @@ buildUBoot {
   prePatch = ''
     substituteInPlace configs/qcm6490_defconfig --replace-fail 'qcom/qcs6490-rb3gen2' 'qcom/qcm6490-shift-otter'
   '';
-  extraMakeFlags = [ "DEVICE_TREE=qcom/qcm6490-shift-otter" "DISTRO_DEFAULTS=y" ];
+  extraMakeFlags = [ "DEVICE_TREE=qcom/qcm6490-shift-otter" ];
   defconfig = "qcm6490_defconfig";
   extraMeta.platforms = ["aarch64-linux"];
   nativeBuildInputs = [ xxd bison flex openssl gnutls ];

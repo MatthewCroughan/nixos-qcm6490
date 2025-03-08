@@ -7,6 +7,13 @@
     flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [ "aarch64-linux" ];
       perSystem = { config, self', inputs', pkgs, system, ... }: {
+        packages.fuck = pkgs.runCommand "" { nativeBuildInputs = with pkgs; [
+          android-tools
+        ]; } ''
+          cp -r ${self.nixosConfigurations.qcm6490.config.system.build.kernel} ./kernel
+          cat kernel/Image.gz kernel/dtbs/qcom/qcm6490-shift-otter.dtb > Image-with-dtb.gz
+          mkbootimg --dtb ./kernel/dtbs/qcom/qcm6490-shift-otter.dtb --kernel Image-with-dtb.gz --ramdisk ${self.nixosConfigurations.qcm6490.config.system.build.initialRamdisk}/initrd --cmdline "console=tty0 console=ttyMSM0,115200n8 init=/nix/store/1h4si0fs606zhqx81kqn43nlmvdry0d1-nixos-system-qcm6490-25.05.20250306.10069ef/init" --tags_offset 0x00000100 --pagesize 4096 --base 0x00000000 --kernel_offset 0x8000 --dtb_offset "0x01f00000" --dtb ./kernel/dtbs/qcom/qcm6490-shift-otter.dtb -o $out
+        '';
         packages.uboot-qcm6490 = pkgs.callPackage ./uboot-qcm6490.nix {};
       };
       flake = {
@@ -19,7 +26,7 @@
             "${nixpkgs}/nixos/modules/profiles/minimal.nix"
             ./qcm6490.nix
             ./configuration.nix
-            ./repart.nix
+#            ./repart.nix
           ];
         };
       };

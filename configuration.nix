@@ -1,5 +1,18 @@
-{ lib, pkgs, ... }:
+{ lib, pkgs, config, ... }:
 {
+  fileSystems."/".device = "/dev/disk/by-partlabel/userdata";
+  fileSystems."/".fsType = "ext4";
+
+  system.build.rootfsImage = pkgs.callPackage "${pkgs.path}/nixos/lib/make-ext4-fs.nix" {
+    storePaths = config.system.build.toplevel;
+    compressImage = false;
+    volumeLabel = "nixos";
+  };
+
+#  boot.initrd.compressor = "zstd";
+
+  boot.loader.grub.enable = false;
+
   nixpkgs.config.allowUnfree = true;
   networking.firewall.enable = false;
   zramSwap = {
@@ -7,14 +20,14 @@
     algorithm = "zstd";
     memoryPercent = 90;
   };
-  hardware.graphics = {
-    enable = true;
-    extraPackages = with pkgs; [
-      vulkan-loader
-      vulkan-validation-layers
-      vulkan-extension-layer
-    ];
-  };
+  #hardware.graphics = {
+  #  enable = true;
+  #  extraPackages = with pkgs; [
+  #    vulkan-loader
+  #    vulkan-validation-layers
+  #    vulkan-extension-layer
+  #  ];
+  #};
   services.openssh = {
     enable = true;
     settings = {
