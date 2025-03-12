@@ -11,6 +11,46 @@
 
 #  boot.initrd.compressor = "zstd";
 
+  console.earlySetup = true;
+  
+  boot.kernelParams = [ "boot.shell_on_fail" ];
+
+  boot.initrd.availableKernelModules = lib.mkForce [
+    "ext2"
+    "ext4"
+#    "ahci"
+#    "sata_nv"
+#    "sata_via"
+#    "sata_sis"
+#    "sata_uli"
+#    "ata_piix"
+#    "pata_marvell"
+#    "nvme"
+#    "sd_mod"
+#    "sr_mod"
+    "mmc_block"
+#    "uhci_hcd"
+#    "ehci_hcd"
+#    "ehci_pci"
+#    "ohci_hcd"
+#    "ohci_pci"
+#    "xhci_hcd"
+#    "xhci_pci"
+    "usbhid"
+    "hid_generic"
+  ];
+
+  boot.initrd.kernelModules = lib.mkForce [
+    "focaltech_ts"
+    "fsa4480"
+    "gpi"
+    "msm"
+    "panel-shift-sh8804b"
+    "pmic_glink"
+    "qcom_glink_smem"
+    "ucsi_glink"
+  ];
+
   boot.loader.grub.enable = false;
 
   nixpkgs.config.allowUnfree = true;

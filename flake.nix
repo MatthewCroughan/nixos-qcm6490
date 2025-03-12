@@ -12,7 +12,7 @@
         ]; } ''
           cp -r ${self.nixosConfigurations.qcm6490.config.system.build.kernel} ./kernel
           cat kernel/Image.gz kernel/dtbs/qcom/qcm6490-shift-otter.dtb > Image-with-dtb.gz
-          mkbootimg --dtb ./kernel/dtbs/qcom/qcm6490-shift-otter.dtb --kernel Image-with-dtb.gz --ramdisk ${self.nixosConfigurations.qcm6490.config.system.build.initialRamdisk}/initrd --cmdline "console=tty0 console=ttyMSM0,115200n8 init=/nix/store/1h4si0fs606zhqx81kqn43nlmvdry0d1-nixos-system-qcm6490-25.05.20250306.10069ef/init" --tags_offset 0x00000100 --pagesize 4096 --base 0x00000000 --kernel_offset 0x8000 --dtb_offset "0x01f00000" --dtb ./kernel/dtbs/qcom/qcm6490-shift-otter.dtb -o $out
+          mkbootimg --header_version 2 --kernel Image-with-dtb.gz --ramdisk ${self.nixosConfigurations.qcm6490.config.system.build.initialRamdisk}/initrd --cmdline "console=tty0 console=ttyMSM0,115200n8 root=PARTUUID=30de3e1e-1741-9b4f-8d42-b6a704339254 init=${builtins.unsafeDiscardStringContext (self.nixosConfigurations.qcm6490.config.system.build.toplevel)}/init" --tags_offset 0x00000100 --pagesize 4096 --base 0x00000000 --kernel_offset 0x8000 --dtb_offset "0x01f00000" --dtb ./kernel/dtbs/qcom/qcm6490-shift-otter.dtb -o $out
         '';
         packages.uboot-qcm6490 = pkgs.callPackage ./uboot-qcm6490.nix {};
       };
