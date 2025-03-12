@@ -50,7 +50,7 @@
   nixpkgs.hostPlatform = lib.recursiveUpdate (lib.systems.elaborate "aarch64-linux") {
     linux-kernel = {
       name = "aarch64-multiplatform";
-      baseConfig = "defconfig";
+      baseConfig = "sc7280_defconfig";
       DTB = true;
       autoModules = true;
       extraConfig = "";
