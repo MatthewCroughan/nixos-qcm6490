@@ -9,13 +9,27 @@
     volumeLabel = "nixos";
   };
 
+  hardware.firmwareCompression = "none";
+
+  hardware.bluetooth.enable = true;
+
 #  boot.initrd.compressor = "zstd";
 
   console.earlySetup = true;
-  
+
   boot.kernelParams = [ "boot.shell_on_fail" ];
 
   boot.initrd.availableKernelModules = lib.mkForce [
+"fsa4480"
+"msm"
+"panel-shift-sh8804b"
+"qcom_glink_smem"
+"pmic_glink"
+"ucsi_glink"
+"gpi"
+"focaltech_ts"
+
+
     "ext2"
     "ext4"
 #    "ahci"
@@ -40,16 +54,16 @@
     "hid_generic"
   ];
 
-  boot.initrd.kernelModules = lib.mkForce [
-    "focaltech_ts"
-    "fsa4480"
-    "gpi"
-    "msm"
-    "panel-shift-sh8804b"
-    "pmic_glink"
-    "qcom_glink_smem"
-    "ucsi_glink"
-  ];
+#  boot.initrd.kernelModules = lib.mkForce [
+#    "focaltech_ts"
+#    "fsa4480"
+#    "gpi"
+#    "msm"
+#    "panel-shift-sh8804b"
+#    "pmic_glink"
+#    "qcom_glink_smem"
+#    "ucsi_glink"
+#  ];
 
   boot.loader.grub.enable = false;
 
@@ -60,14 +74,14 @@
     algorithm = "zstd";
     memoryPercent = 90;
   };
-  #hardware.graphics = {
-  #  enable = true;
-  #  extraPackages = with pkgs; [
-  #    vulkan-loader
-  #    vulkan-validation-layers
-  #    vulkan-extension-layer
-  #  ];
-  #};
+  hardware.graphics = {
+    enable = true;
+    extraPackages = with pkgs; [
+      vulkan-loader
+      vulkan-validation-layers
+      vulkan-extension-layer
+    ];
+  };
   services.openssh = {
     enable = true;
     settings = {
@@ -108,9 +122,44 @@
     };
   };
 
-  environment.systemPackages = with pkgs; [
+  hardware.enableAllFirmware = lib.mkForce true;
+
+#  hardware.firmware = let
+#    pil-squasher-src = pkgs.fetchFromGitHub {
+#      repo = "pil-squasher";
+#      owner = "linux-msm";
+#      rev = "3c9f8b8756ba6e4dbf9958570fd4c9aea7a70cf4";
+#      hash = "sha256-MEW85w3RQhY3tPaWtH7OO22VKZrjwYUWBWnF3IF4YC0=";
+#    };
+#    pil-squasher = pkgs.writeCBin "pil-squasher" (builtins.readFile "${pil-squasher-src}/pil-squasher.c");
+#  in [
+#    (pkgs.stdenv.mkDerivation {
+#      name = "firmware-shift-otter";
+#      src = pkgs.fetchFromGitHub {
+#        repo = "firmware-shift-otter";
+#        owner = "SomeBlobs";
+#        rev = "a983951ce4da4059349b34d6d27a0303dcce1f4d";
+#        hash = "sha256-XQkfr+ittyFBS+tb2nMz6THdkTTgLPR+bUUA/c70YyM=";
+#        #rev = "75058a91d2dd296a5a92b348d767e2c499e551fe";
+#        #hash = "sha256-AlZ1cHzk5sI8hIHV9Etva7AZyVADbpuZQhXeHZ0aboA=";
+#      };
+#      phases = [ "unpackPhase" "installPhase" ];
+#      nativeBuildInputs = [
+#        pil-squasher
+#      ];
+#      installPhase = ''
+#        sh ./scripts/prepare.sh $src $out
+#      '';
+#    })
+#  ];
+
+  environment.systemPackages = let
+    mdm = pkgs.callPackage ./mdm.nix {};
+  in with pkgs; [
+    mdm
     vim
     git
+#    kitty
     btop
     sway
   ];
