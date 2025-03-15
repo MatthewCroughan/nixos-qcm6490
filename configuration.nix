@@ -4,9 +4,16 @@
   fileSystems."/".fsType = "ext4";
 
   system.build.rootfsImage = pkgs.callPackage "${pkgs.path}/nixos/lib/make-ext4-fs.nix" {
-    storePaths = config.system.build.toplevel;
+    storePaths = [ config.system.build.toplevel config.boot.kernelPackages.kernel ];
     compressImage = false;
     volumeLabel = "nixos";
+  };
+
+  networking.wireless = {
+    enable = true;
+    networks = {
+      DoESLiverpool.pskRaw = "63e49f779a41eda7be1510a275a07e519d407af706d0f2d3cc3140b9aecd412f";
+    };
   };
 
   hardware.firmwareCompression = "none";
