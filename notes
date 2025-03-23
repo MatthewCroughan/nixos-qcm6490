@@ -17,5 +17,24 @@ https://gitlab.postmarketos.org/postmarketOS/pmaports/-/blob/09c45cb26b5c3a0e539
 SBU1 and SBU2 are TX/RX for UART
 https://wandkey.com/usb-c-pinout-guide-and-features/
 
-
 https://gitlab.postmarketos.org/postmarketOS/pmaports/-/commit/409d5d5616667cac4120f900294bd69ca86bd932
+
+The firmware in shift-otter-firmware on postmarketOS and-or qcm6490 in
+linux-firmware is broken, so you have to:
+
+
+[root@qcm6490:~]# make-dynpart-mappings /dev/sda9 /dev/sda9
+[root@qcm6490:~]# mkdir /mnt
+[root@qcm6490:~]# mount -t ext4 -o ro /dev/mapper/vendor_a /mnt
+[root@qcm6490:~]# mount -o remount,rw /nix/store
+[root@qcm6490:~]# mkdir -p "$(readlink /run/current-system/firmware)/qcom/qcm6490/SHIFT/otter"
+[root@qcm6490:~]# cp -r /mnt/firmware/* "$(readlink /run/current-system/firmware)/qcom/qcm6490/SHIFT/otter"
+[root@qcm6490:~]# for i in $(ls /mnt/firmware/*.mdt); do cp $i "$(readlink /run/current-system/firmware)/qcom/qcm6490/SHIFT/otter"/$(echo $(basename $i) | cut -f 1 -d '.').mbn; done
+[root@qcm6490:~]# umount /mnt
+[root@qcm6490:~]# mount /dev/sde4 /mnt
+[root@qcm6490:~]# cp -r /mnt/image/* "$(readlink /run/current-system/firmware)/qcom/qcm6490/SHIFT/otter"
+[root@qcm6490:~]# for i in $(ls /mnt/image/*.mdt); do cp $i "$(readlink /run/current-system/firmware)/qcom/qcm6490/SHIFT/otter"/$(echo $(basename $i) | cut -f 1 -d '.').mbn; done
+
+
+
+
