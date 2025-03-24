@@ -29,12 +29,13 @@
   boot.initrd.availableKernelModules = lib.mkForce [
 "fsa4480"
 "msm"
-"panel-shift-sh8804b"
+#"panel-shift-sh8804b"
 "qcom_glink_smem"
 "pmic_glink"
 "ucsi_glink"
 "gpi"
-"focaltech_ts"
+#"focaltech_ts"
+
 
 
     "ext2"

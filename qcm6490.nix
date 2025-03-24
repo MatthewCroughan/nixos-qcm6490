@@ -31,6 +31,12 @@
       #  ACPI_HOTPLUG_CPU = lib.mkForce lib.kernel.unset;
         #SND_SOC_SC8280XP = lib.mkForce lib.kernel.no;
         #SND_SOC_X1E80100 = lib.mkForce lib.kernel.no;
+        SCSI_UFSHCD =lib.mkForce lib.kernel.yes;
+        SCSI_UFS_BSG =lib.mkForce lib.kernel.yes;
+        SCSI_UFS_CRYPTO =lib.mkForce lib.kernel.yes;
+        SCSI_UFSHCD_PLATFORM =lib.mkForce lib.kernel.yes;
+        SCSI_UFS_QCOM =lib.mkForce lib.kernel.yes;
+
         QCOM_Q6V5_COMMON = lib.mkForce lib.kernel.module;
         QCOM_Q6V5_ADSP = lib.mkForce lib.kernel.module;
         QCOM_RPROC_COMMON = lib.mkForce lib.kernel.module;
@@ -42,8 +48,8 @@
         QCOM_Q6V5_PAS = lib.mkForce lib.kernel.module;
         DRM_MSM  = lib.mkForce lib.kernel.module;
 #        DRM_MSM_DPU  = lib.mkForce lib.kernel.module;
-        TOUCHSCREEN_FOCALTECH_FT3658U = lib.mkForce lib.kernel.module;
-        DRM_PANEL_SHIFT_SH8804B = lib.mkForce lib.kernel.module;
+#        TOUCHSCREEN_FOCALTECH_FT3658U = lib.mkForce lib.kernel.module;
+#        DRM_PANEL_SHIFT_SH8804B = lib.mkForce lib.kernel.module;
       #  CRYPTO_AEGIS128_SIMD = lib.mkForce lib.kernel.no;
       #  TOUCHSCREEN_GOODIX_BRL = lib.mkForce lib.kernel.no;
         EFI_ZBOOT = lib.mkForce lib.kernel.no;

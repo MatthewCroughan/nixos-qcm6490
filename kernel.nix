@@ -1,5 +1,6 @@
 { lib
 , buildLinux
+, runCommand
 , fetchFromGitLab
 , fetchFromGitHub
 , ... } @ args:
@@ -18,12 +19,26 @@ let
 #    hash = "sha256-dWyQkjwdWK5wtG5JC+1vjNh0ieh+i/+KNasDROz7Tsg=";
 #  };
 
-  src = fetchFromGitLab {
-    owner = "sdm845-mainline";
-    repo = "linux";
-    rev = "otter-bringup";
-    hash = "sha256-Woe5u8KSFxZ+ROFhvFnZPYG1sVBpoo6vEshhpD+d/Js=";
-  };
+  src = let
+    unpatched = fetchFromGitHub {
+      owner = "torvalds";
+      repo = "linux";
+      rev = "586de92313fcab8ed84ac5f78f4d2aae2db92c59";
+      hash = "sha256-TE3h9Abn8dazx1x/A35qOTPTwPVCSx6565DfGFuk/Yk=";
+    };
+  in runCommand "" {} ''
+    cp -r ${unpatched} $out
+    chmod -R +w $out
+    cp ${./config} $out/arch/arm64/configs/sc7280_defconfig
+  '';
+
+
+#  src = fetchFromGitLab {
+#    owner = "sdm845-mainline";
+#    repo = "linux";
+#    rev = "otter-bringup";
+#    hash = "sha256-Woe5u8KSFxZ+ROFhvFnZPYG1sVBpoo6vEshhpD+d/Js=";
+#  };
   kernelVersion = rec {
     # Fully constructed string, example: "5.10.0-rc5".
     string = "${version + "." + patchlevel + "." + sublevel + (lib.optionalString (extraversion != "") extraversion)}";
