@@ -27,16 +27,14 @@
   boot.kernelParams = [ "boot.shell_on_fail" ];
 
   boot.initrd.availableKernelModules = lib.mkForce [
-"fsa4480"
-"msm"
-"panel-shift-sh8804b"
-"qcom_glink_smem"
-"pmic_glink"
-"ucsi_glink"
-"gpi"
-"focaltech_ts"
-
-
+    "fsa4480"
+    "msm"
+    "panel-shift-sh8804b"
+    "qcom_glink_smem"
+    "pmic_glink"
+    "ucsi_glink"
+    "gpi"
+    "focaltech_ts"
     "ext2"
     "ext4"
 #    "ahci"

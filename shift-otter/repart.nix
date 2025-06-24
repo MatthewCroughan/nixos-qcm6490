@@ -15,10 +15,10 @@ in
   boot.initrd.systemd.root = "gpt-auto";
   boot.initrd.supportedFilesystems.ext4 = true;
 
-  fileSystems."/".device = "/dev/disk/by-label/nixos";
-  fileSystems."/".fsType = "ext4";
-  fileSystems."/boot".device = "/dev/disk/by-label/ESP";
-  fileSystems."/boot".fsType = "vfat";
+  fileSystems."/".device = lib.mkForce "/dev/disk/by-label/nixos";
+  fileSystems."/".fsType = lib.mkForce "ext4";
+  fileSystems."/boot".device = lib.mkForce "/dev/disk/by-label/ESP";
+  fileSystems."/boot".fsType = lib.mkForce "vfat";
   image.repart = {
     name = "image";
     partitions = {
@@ -31,7 +31,6 @@ in
       };
       "20-esp" = {
         contents = {
-          "/EFI/EDK2-UEFI-SHELL/SHELL.EFI".source = "${pkgs.edk2-uefi-shell.overrideAttrs { env.NIX_CFLAGS_COMPILE = "-Wno-error=maybe-uninitialized"; }}/shell.efi";
           "/EFI/BOOT/BOOT${lib.toUpper efiArch}.EFI".source = "${pkgs.systemd}/lib/systemd/boot/efi/systemd-boot${efiArch}.efi";
           "/EFI/Linux/${config.system.boot.loader.ukiFile}".source = "${config.system.build.uki}/${config.system.boot.loader.ukiFile}";
           "/loader/loader.conf".source = pkgs.writeText "loader.conf" ''

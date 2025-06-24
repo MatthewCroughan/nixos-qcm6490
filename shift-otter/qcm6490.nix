@@ -31,6 +31,12 @@
       #  ACPI_HOTPLUG_CPU = lib.mkForce lib.kernel.unset;
         #SND_SOC_SC8280XP = lib.mkForce lib.kernel.no;
         #SND_SOC_X1E80100 = lib.mkForce lib.kernel.no;
+
+        # don't work because of rust toolchain
+        DRM_PANIC = lib.mkForce lib.kernel.no;
+        DRM_PANIC_SCREEN = lib.mkForce lib.kernel.unset;
+        DRM_PANIC_SCREEN_QR_CODE = lib.mkForce lib.kernel.unset;
+
         QCOM_Q6V5_COMMON = lib.mkForce lib.kernel.module;
         QCOM_Q6V5_ADSP = lib.mkForce lib.kernel.module;
         QCOM_RPROC_COMMON = lib.mkForce lib.kernel.module;
