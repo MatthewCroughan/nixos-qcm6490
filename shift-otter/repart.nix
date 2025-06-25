@@ -1,8 +1,6 @@
 { modulesPath, pkgs, config, lib, ... }:
 let
   efiArch = pkgs.stdenv.hostPlatform.efiArch;
-          "edk2-uefi-shell.conf" = ''
-          '';
 in
 {
   imports = [ "${modulesPath}/image/repart.nix" ];
@@ -21,16 +19,11 @@ in
   fileSystems."/boot".fsType = lib.mkForce "vfat";
   image.repart = {
     name = "image";
+    compression.enable = true;
     partitions = {
-      "10-uboot-padding" = {
-        repartConfig = {
-          Type = "linux-generic";
-          Label = "uboot-padding";
-          SizeMinBytes = "10M";
-        };
-      };
-      "20-esp" = {
+      "10-esp" = {
         contents = {
+          "/EFI/EDK2-UEFI-SHELL/SHELL.EFI".source = "${pkgs.edk2-uefi-shell.overrideAttrs { env.NIX_CFLAGS_COMPILE = "-Wno-error=maybe-uninitialized"; }}/shell.efi";
           "/EFI/BOOT/BOOT${lib.toUpper efiArch}.EFI".source = "${pkgs.systemd}/lib/systemd/boot/efi/systemd-boot${efiArch}.efi";
           "/EFI/Linux/${config.system.boot.loader.ukiFile}".source = "${config.system.build.uki}/${config.system.boot.loader.ukiFile}";
           "/loader/loader.conf".source = pkgs.writeText "loader.conf" ''
@@ -50,9 +43,10 @@ in
           GrowFileSystem = true;
         };
       };
-      "30-root" = {
+      "20-root" = {
         storePaths = [ config.system.build.toplevel ];
         contents."/boot".source = pkgs.runCommand "boot" { } "mkdir $out";
+#        contents."/lib/firmware".source = "${config.hardware.firmware}/lib/firmware";
         repartConfig = {
           Type = "root";
           Format = "ext4";

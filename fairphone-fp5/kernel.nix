@@ -37,7 +37,7 @@ in (buildLinux (args // {
   preferBuiltIn = true;
   ignoreConfigErrors = true;
   defconfig = "fp5_defconfig";
-  autoModules = false;
+  autoModules = true;
   version = "${modDirVersion}";
   extraMeta = {
     platforms = [ "aarch64-linux" ];

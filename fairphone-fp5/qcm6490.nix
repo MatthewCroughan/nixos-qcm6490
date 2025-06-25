@@ -37,20 +37,20 @@
 #        DRM_PANIC_SCREEN = lib.mkForce lib.kernel.unset;
 #        DRM_PANIC_SCREEN_QR_CODE = lib.mkForce lib.kernel.unset;
 #
-#        QCOM_Q6V5_COMMON = lib.mkForce lib.kernel.module;
-#        QCOM_Q6V5_ADSP = lib.mkForce lib.kernel.module;
-#        QCOM_RPROC_COMMON = lib.mkForce lib.kernel.module;
-#        QCOM_Q6V5_WCSS = lib.mkForce lib.kernel.module;
-#        QCOM_SYSMON = lib.mkForce lib.kernel.module;
-#        QCOM_WCNSS_PIL = lib.mkForce lib.kernel.module;
+        QCOM_Q6V5_COMMON = lib.mkForce lib.kernel.module;
+        QCOM_Q6V5_ADSP = lib.mkForce lib.kernel.module;
+        QCOM_RPROC_COMMON = lib.mkForce lib.kernel.module;
+        QCOM_Q6V5_WCSS = lib.mkForce lib.kernel.module;
+        QCOM_SYSMON = lib.mkForce lib.kernel.module;
+        QCOM_WCNSS_PIL = lib.mkForce lib.kernel.module;
 #
-#        QCOM_Q6V5_MSS = lib.mkForce lib.kernel.module;
-#        QCOM_Q6V5_PAS = lib.mkForce lib.kernel.module;
+        QCOM_Q6V5_MSS = lib.mkForce lib.kernel.module;
+        QCOM_Q6V5_PAS = lib.mkForce lib.kernel.module;
 #        DRM_MSM  = lib.mkForce lib.kernel.module;
 #        DRM_MSM_DPU  = lib.mkForce lib.kernel.module;
       #  CRYPTO_AEGIS128_SIMD = lib.mkForce lib.kernel.no;
       #  TOUCHSCREEN_GOODIX_BRL = lib.mkForce lib.kernel.no;
-        SND_SOC_SM8250 = lib.mkForce lib.kernel.no;
+        SND_SOC_SM8250 = lib.mkForce lib.kernel.module;
         EFI_ZBOOT = lib.mkForce lib.kernel.yes;
         KERNEL_ZSTD = lib.mkForce lib.kernel.yes;
         RD_ZSTD = lib.mkForce lib.kernel.yes;

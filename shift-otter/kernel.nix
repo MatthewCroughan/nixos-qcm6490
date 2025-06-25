@@ -4,12 +4,7 @@
 , fetchFromGitHub
 , ... } @ args:
 let
-#  src = fetchFromGitHub {
-#    owner = "amartinz";
-#    repo = "sc7280-mainline_linux";
-#    rev = "2a3775318eb42e97c970b6e41d1f290f0a76542a";
-#    hash = "sha256-QsJVqam1gOT9EDiHodPxCgy0Uu1rjcHPnhmO0far1mY=";
-#  };
+  src = builtins.fetchTree "github:matthewcroughan/linux?rev=108843c1e973c3ab3fb94364c394f23c413c78a5";
 
 #  src = fetchFromGitHub {
 #    owner = "sc7280-mainline";
@@ -18,12 +13,12 @@ let
 #    hash = "sha256-dWyQkjwdWK5wtG5JC+1vjNh0ieh+i/+KNasDROz7Tsg=";
 #  };
 
-  src = fetchFromGitLab {
-    owner = "sdm845-mainline";
-    repo = "linux";
-    rev = "otter-bringup";
-    hash = "sha256-Woe5u8KSFxZ+ROFhvFnZPYG1sVBpoo6vEshhpD+d/Js=";
-  };
+#  src = fetchFromGitLab {
+#    owner = "sdm845-mainline";
+#    repo = "linux";
+#    rev = "otter-bringup";
+#    hash = "sha256-Woe5u8KSFxZ+ROFhvFnZPYG1sVBpoo6vEshhpD+d/Js=";
+#  };
   kernelVersion = rec {
     # Fully constructed string, example: "5.10.0-rc5".
     string = "${version + "." + patchlevel + "." + sublevel + (lib.optionalString (extraversion != "") extraversion)}";
@@ -38,18 +33,22 @@ let
 in (buildLinux (args // {
   inherit src;
   modDirVersion = "${modDirVersion}";
-#  enableCommonConfig = false;
-#  defconfig = "sc7280_defconfig";
-#  autoModules = false;
+  enableCommonConfig = true;
+#  preferBuiltIn = true;
+#  ignoreConfigErrors = true;
+  defconfig = "otter_defconfig";
+  autoModules = true;
   version = "${modDirVersion}";
   extraMeta = {
     platforms = [ "aarch64-linux" ];
     hydraPlatforms = [ "" ];
   };
 } // (args.argsOverride or { }))).overrideAttrs (old: {
-  prePatch = ''
+  postUnpack = ''
     patchShebangs lib/tests/module/gen_test_kallsyms.sh
-    cp ${./qcm6490-shift-otter.dts} arch/arm64/boot/dts/qcom/qcm6490-shift-otter.dts
+#    cat arch/arm64/configs/defconfig arch/arm64/configs/otter_defconfig | uniq > defconfig
+#    mv defconfig arch/arm64/configs/otter_defconfig
+#    cp ${./qcm6490-shift-otter.dts} arch/arm64/boot/dts/qcom/qcm6490-shift-otter.dts
   '';
-  NIX_CFLAGS_COMPILE = "-Wno-error=return-type";
+  NIX_CFLAGS_COMPILE = "-Wno-error=return-type -Wno-error=implicit-function-declaration";
 })

@@ -1,9 +1,9 @@
 { pkgs, lib, ... }:
 {
-  imports = [ ./unset.nix ];
+#  imports = [ ./unset.nix ];
   hardware.deviceTree.name = "qcom/qcm6490-shift-otter.dtb";
   hardware.deviceTree.enable = true;
-  hardware.enableAllFirmware = true;
+  #hardware.enableAllFirmware = true;
   nixpkgs.config.allowUnfree = true;
 
 #  boot.kernelPatches = [
@@ -24,36 +24,55 @@
 
 
   boot.kernelPatches = [
+    { name = "kconfig"; patch = ./kconfig.patch; }
+    { name = "write_seq"; patch = ./write_seq.patch; }
     {
       name = "config-disable-zboot";
       patch = null;
       extraStructuredConfig = {
       #  ACPI_HOTPLUG_CPU = lib.mkForce lib.kernel.unset;
+      #  ACPI_HOTPLUG_CPU = lib.mkForce lib.kernel.unset;
         #SND_SOC_SC8280XP = lib.mkForce lib.kernel.no;
         #SND_SOC_X1E80100 = lib.mkForce lib.kernel.no;
 
         # don't work because of rust toolchain
-        DRM_PANIC = lib.mkForce lib.kernel.no;
-        DRM_PANIC_SCREEN = lib.mkForce lib.kernel.unset;
-        DRM_PANIC_SCREEN_QR_CODE = lib.mkForce lib.kernel.unset;
+#        DRM_PANIC = lib.mkForce lib.kernel.no;
+#        DRM_PANIC_SCREEN = lib.mkForce lib.kernel.unset;
+#        DRM_PANIC_SCREEN_QR_CODE = lib.mkForce lib.kernel.unset;
+#
 
-        QCOM_Q6V5_COMMON = lib.mkForce lib.kernel.module;
-        QCOM_Q6V5_ADSP = lib.mkForce lib.kernel.module;
-        QCOM_RPROC_COMMON = lib.mkForce lib.kernel.module;
-        QCOM_Q6V5_WCSS = lib.mkForce lib.kernel.module;
-        QCOM_SYSMON = lib.mkForce lib.kernel.module;
-        QCOM_WCNSS_PIL = lib.mkForce lib.kernel.module;
+#        QCOM_Q6V5_COMMON = lib.mkForce lib.kernel.module;
+#        QCOM_Q6V5_ADSP = lib.mkForce lib.kernel.module;
+#        QCOM_RPROC_COMMON = lib.mkForce lib.kernel.module;
+#        QCOM_Q6V5_WCSS = lib.mkForce lib.kernel.module;
+#        QCOM_SYSMON = lib.mkForce lib.kernel.module;
+#        QCOM_WCNSS_PIL = lib.mkForce lib.kernel.module;
+#
+#        QCOM_Q6V5_MSS = lib.mkForce lib.kernel.module;
+#        QCOM_Q6V5_PAS = lib.mkForce lib.kernel.module;
 
-        QCOM_Q6V5_MSS = lib.mkForce lib.kernel.module;
-        QCOM_Q6V5_PAS = lib.mkForce lib.kernel.module;
-        DRM_MSM  = lib.mkForce lib.kernel.module;
+
+##        DRM_MSM  = lib.mkForce lib.kernel.module;
 #        DRM_MSM_DPU  = lib.mkForce lib.kernel.module;
-        TOUCHSCREEN_FOCALTECH_FT3658U = lib.mkForce lib.kernel.module;
+        DEVMEM = lib.mkForce lib.kernel.yes;
+        IO_STRICT_DEVMEM = lib.mkForce lib.kernel.yes;
+        VIRTIO_MMIO_CMDLINE_DEVICES = lib.mkForce lib.kernel.unset;
+        TOUCHSCREEN_FOCALTECH_FT3658U = lib.mkForce lib.kernel.no;
         DRM_PANEL_SHIFT_SH8804B = lib.mkForce lib.kernel.module;
-      #  CRYPTO_AEGIS128_SIMD = lib.mkForce lib.kernel.no;
+        FSL_ENETC =  lib.kernel.no;
+        FSL_ENETC_CORE =  lib.kernel.unset;
+        FSL_ENETC_VF = lib.kernel.no;
+        NXP_ENETC4  = lib.kernel.no;
+        #FSL_ENETC_IERB = lib.mkForce lib.kernel.unset;
+        #FSL_ENETC_MDIO = lib.mkForce lib.kernel.unset;
+        #FSL_ENETC_PTP_CLOCK = lib.mkForce lib.kernel.unset;
+        #FSL_ENETC_QOS = lib.mkForce lib.kernel.unset;
+
+#        CRYPTO_AEGIS128_SIMD = lib.mkForce lib.kernel.no;
       #  TOUCHSCREEN_GOODIX_BRL = lib.mkForce lib.kernel.no;
-        EFI_ZBOOT = lib.mkForce lib.kernel.no;
-        KERNEL_ZSTD = lib.mkForce lib.kernel.unset;
+        EFI_ZBOOT = lib.mkForce lib.kernel.yes;
+        KERNEL_ZSTD = lib.mkForce lib.kernel.yes;
+        RD_ZSTD = lib.mkForce lib.kernel.yes;
       };
       #extraStructuredConfig = {
       #  TOUCHSCREEN_GOODIX_BERLIN_SPI = lib.mkForce lib.kernel.module;
@@ -68,12 +87,12 @@
   nixpkgs.hostPlatform = lib.recursiveUpdate (lib.systems.elaborate "aarch64-linux") {
     linux-kernel = {
       name = "aarch64-multiplatform";
-      baseConfig = "sc7280_defconfig";
+      baseConfig = "otter_defconfig";
       DTB = true;
-      autoModules = true;
+#      autoModules = true;
       extraConfig = "";
-      preferBuiltin = true;
-      target = "Image.gz";
+#      preferBuiltin = true;
+      target = "vmlinuz.efi";
       installTarget = "zinstall";
     };
     gcc = {

@@ -1,5 +1,6 @@
 { lib, pkgs, config, ... }:
 {
+#  imports = [ ./hack.nix ];
   fileSystems."/".device = "/dev/disk/by-partlabel/userdata";
   fileSystems."/".fsType = "ext4";
 
@@ -15,6 +16,8 @@
       DoESLiverpool.pskRaw = "63e49f779a41eda7be1510a275a07e519d407af706d0f2d3cc3140b9aecd412f";
     };
   };
+
+  boot.initrd.systemd.emergencyAccess = true;
 
   hardware.firmwareCompression = "none";
 
@@ -34,7 +37,7 @@
     "pmic_glink"
     "ucsi_glink"
     "gpi"
-    "focaltech_ts"
+#    "focaltech_ts"
     "ext2"
     "ext4"
 #    "ahci"
@@ -129,34 +132,34 @@
 
   hardware.enableAllFirmware = lib.mkForce true;
 
-#  hardware.firmware = let
-#    pil-squasher-src = pkgs.fetchFromGitHub {
-#      repo = "pil-squasher";
-#      owner = "linux-msm";
-#      rev = "3c9f8b8756ba6e4dbf9958570fd4c9aea7a70cf4";
-#      hash = "sha256-MEW85w3RQhY3tPaWtH7OO22VKZrjwYUWBWnF3IF4YC0=";
-#    };
-#    pil-squasher = pkgs.writeCBin "pil-squasher" (builtins.readFile "${pil-squasher-src}/pil-squasher.c");
-#  in [
-#    (pkgs.stdenv.mkDerivation {
-#      name = "firmware-shift-otter";
-#      src = pkgs.fetchFromGitHub {
-#        repo = "firmware-shift-otter";
-#        owner = "SomeBlobs";
-#        rev = "a983951ce4da4059349b34d6d27a0303dcce1f4d";
-#        hash = "sha256-XQkfr+ittyFBS+tb2nMz6THdkTTgLPR+bUUA/c70YyM=";
-#        #rev = "75058a91d2dd296a5a92b348d767e2c499e551fe";
-#        #hash = "sha256-AlZ1cHzk5sI8hIHV9Etva7AZyVADbpuZQhXeHZ0aboA=";
-#      };
-#      phases = [ "unpackPhase" "installPhase" ];
-#      nativeBuildInputs = [
-#        pil-squasher
-#      ];
-#      installPhase = ''
-#        sh ./scripts/prepare.sh $src $out
-#      '';
-#    })
-#  ];
+  hardware.firmware = let
+    pil-squasher-src = pkgs.fetchFromGitHub {
+      repo = "pil-squasher";
+      owner = "linux-msm";
+      rev = "3c9f8b8756ba6e4dbf9958570fd4c9aea7a70cf4";
+      hash = "sha256-MEW85w3RQhY3tPaWtH7OO22VKZrjwYUWBWnF3IF4YC0=";
+    };
+    pil-squasher = pkgs.writeCBin "pil-squasher" (builtins.readFile "${pil-squasher-src}/pil-squasher.c");
+  in [
+    (pkgs.stdenv.mkDerivation {
+      name = "firmware-shift-otter";
+      src = pkgs.fetchFromGitHub {
+        repo = "firmware-shift-otter";
+        owner = "SomeBlobs";
+        rev = "28e9784221d11a49f6cebe8df637244a6fc91e30";
+        hash = "sha256-4Wc+J/91QER/GjMGZbgogmOvOqGDdBxPDHJUsRyNpd4=";
+        #rev = "75058a91d2dd296a5a92b348d767e2c499e551fe";
+        #hash = "sha256-AlZ1cHzk5sI8hIHV9Etva7AZyVADbpuZQhXeHZ0aboA=";
+      };
+      phases = [ "unpackPhase" "installPhase" ];
+      nativeBuildInputs = [
+        pil-squasher
+      ];
+      installPhase = ''
+        sh ./scripts/prepare.sh $src $out
+      '';
+    })
+  ];
 
   environment.systemPackages = let
     mdm = pkgs.callPackage ./mdm.nix {};

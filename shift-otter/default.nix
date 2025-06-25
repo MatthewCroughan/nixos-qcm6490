@@ -39,7 +39,7 @@
         -o $out \
         --cmdline "console=tty0 console=ttyMSM0,115200n8 boot.shell_on_fail root=PARTUUID=30de3e1e-1741-9b4f-8d42-b6a704339254 loglevel=8 init=${builtins.unsafeDiscardStringContext (inputs.self.nixosConfigurations.qcm6490-shift-otter.config.system.build.toplevel)}/init"
     '';
-    packages.uboot-qcm6490-shift-otter = pkgs.callPackage ./uboot-qcm6490-shift-otter.nix {};
+    packages.uboot-qcm6490-shift-otter = pkgs.callPackage ./uboot-qcm6490.nix {};
   };
   flake = {
     nixosConfigurations.qcm6490-shift-otter = inputs.nixpkgs.lib.nixosSystem {
@@ -51,6 +51,7 @@
         "${inputs.nixpkgs}/nixos/modules/profiles/minimal.nix"
         ./qcm6490.nix
         ./configuration.nix
+        ./repart.nix
       ];
     };
   };
