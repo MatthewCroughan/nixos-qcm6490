@@ -1,0 +1,49 @@
+https://www.linaro.org/blog/initial-u-boot-release-for-qualcomm-platforms/#rb3-gen-2-uefi
+https://docs.u-boot.org/en/latest/board/qualcomm/rb3gen2.html
+https://git.codelinaro.org/linaro/qcomlt/u-boot/-/blob/caleb/rbx-integration/doc/board/qualcomm/rb3gen2.rst
+https://gitlab.postmarketos.org/postmarketOS/pmaports/-/merge_requests/4884/diffs
+https://gitlab.com/postmarketOS/pmaports/-/merge_requests/4891/diffs
+https://github.com/sc7280-mainline/linux/pull/2
+https://social.treehouse.systems/@cas/112408253217032704
+
+They have a kernel for the sc7280 (which is what qcm6490 actually is), and I
+probably need to reverse engineer the postmarketOS package definitions
+https://gitlab.postmarketos.org/postmarketOS/pmaports/-/blob/09c45cb26b5c3a0e53925bdbf78ea2c0a132188e/device/testing/linux-postmarketos-qcom-sc7280/APKBUILD
+
+I probably need to figure out defconfig stuff too
+https://gitlab.postmarketos.org/postmarketOS/pmaports/-/blob/09c45cb26b5c3a0e53925bdbf78ea2c0a132188e/device/testing/linux-postmarketos-qcom-sc7280/config-postmarketos-qcom-sc7280.aarch64
+
+
+SBU1 and SBU2 are TX/RX for UART
+https://wandkey.com/usb-c-pinout-guide-and-features/
+
+https://gitlab.postmarketos.org/postmarketOS/pmaports/-/commit/409d5d5616667cac4120f900294bd69ca86bd932
+
+The firmware in shift-otter-firmware on postmarketOS and-or qcm6490 in
+linux-firmware is broken, so you have to:
+
+
+[root@qcm6490:~]# make-dynpart-mappings /dev/sda9 /dev/sda9
+[root@qcm6490:~]# mkdir /mnt
+[root@qcm6490:~]# mount -t ext4 -o ro /dev/mapper/vendor_a /mnt
+[root@qcm6490:~]# mount -o remount,rw /nix/store
+[root@qcm6490:~]# mkdir -p "$(readlink /run/current-system/firmware)/qcom/qcm6490/SHIFT/otter"
+[root@qcm6490:~]# cp -r /mnt/firmware/* "$(readlink /run/current-system/firmware)/qcom/qcm6490/SHIFT/otter"
+[root@qcm6490:~]# for i in $(ls /mnt/firmware/*.mdt); do cp $i "$(readlink /run/current-system/firmware)/qcom/qcm6490/SHIFT/otter"/$(echo $(basename $i) | cut -f 1 -d '.').mbn; done
+[root@qcm6490:~]# umount /mnt
+[root@qcm6490:~]# mount /dev/sde4 /mnt
+[root@qcm6490:~]# cp -r /mnt/image/* "$(readlink /run/current-system/firmware)/qcom/qcm6490/SHIFT/otter"
+[root@qcm6490:~]# for i in $(ls /mnt/image/*.mdt); do cp $i "$(readlink /run/current-system/firmware)/qcom/qcm6490/SHIFT/otter"/$(echo $(basename $i) | cut -f 1 -d '.').mbn; done
+
+
+
+https://docs.qualcomm.com/bundle/publicresource/topics/80-88500-4/9_Cold_boot_flow.html
+
+In order to make the SD card work on shiftphone 8, (qcm6490-shift-otter) you
+need to add `cd-gpios = <&tlmm 91 GPIO_ACTIVE_LOW>;` to the sdhc_2 node
+
+I was able to figure this out by `for i in `fd yupik`; do rg -H -i cd-gpio $i; done` on the yupik device trees in the vendor lineageos android sources https://github.com/LineageOS/android_kernel_shift_qcm6490/blob/lineage-22.2/arch/arm64/boot/dts/vendor/qcom/yupik.dtsi
+
+
+# display port + usb 2.0 is not working
+https://lore.kernel.org/all/1ab2f4f0-94e5-413b-a87b-190b288b5f32@linaro.org/

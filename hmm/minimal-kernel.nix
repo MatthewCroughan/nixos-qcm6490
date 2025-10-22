@@ -1,26 +1,25 @@
 { lib
 , buildLinux
+, linuxManualConfig
 , fetchFromGitLab
 , fetchFromGitHub
 , ... } @ args:
 let
-  #src = fetchFromGitHub {
-  #  owner = "sc7280-mainline";
-  #  repo = "linux";
-  #  rev = "7caee3e710ff6704cf98df690415790a0a6beda1";
-  #  hash = "sha256-T1rTa6SkbDOPp36nn2DbIUdnfo48Hm4Dx6qh8ZKL95E=";
-  #};
-  src = args.src;
-  #src = builtins.fetchGit {
-  #  url = "https://github.com/MatthewCroughan/linux.git";
-  #  rev = "2e6ed3b4c5c1c5e01862efcef8b94272900f2277";
-  #};
-  #src = fetchFromGitHub {
-  #  owner = "matthewcroughan";
-  #  repo = "linux";
-  #  rev = "ba982ae273a30e9e29327276a992c99051661621";
-  #  hash = "sha256-iqAvir+9Ui+uifXYoBAghCCepxBwRkV6T0f+ckoJfRM=";
-  #};
+  src = builtins.fetchTree "github:sc7280-mainline/linux?rev=5ac4ccb053f66b928fefd8b5d8243009555ce41b";
+
+#  src = fetchFromGitHub {
+#    owner = "sc7280-mainline";
+#    repo = "linux";
+#    rev = "e1b1fc29f55ba3942b4cef783cffb39fea4bb814";
+#    hash = "sha256-dWyQkjwdWK5wtG5JC+1vjNh0ieh+i/+KNasDROz7Tsg=";
+#  };
+
+#  src = fetchFromGitLab {
+#    owner = "sdm845-mainline";
+#    repo = "linux";
+#    rev = "otter-bringup";
+#    hash = "sha256-Woe5u8KSFxZ+ROFhvFnZPYG1sVBpoo6vEshhpD+d/Js=";
+#  };
   kernelVersion = rec {
     # Fully constructed string, example: "5.10.0-rc5".
     string = "${version + "." + patchlevel + "." + sublevel + (lib.optionalString (extraversion != "") extraversion)}";
@@ -32,15 +31,10 @@ let
     extraversion = toString (builtins.match ".+EXTRAVERSION = ([a-z0-9-]+).+" (builtins.readFile file));
   };
   modDirVersion = "${kernelVersion.string}";
-in (buildLinux (args // {
+in (linuxManualConfig ({
   inherit src;
-  #modDirVersion = "${modDirVersion}";
-  modDirVersion = "6.18.0-rc2-next-20251022";
-  enableCommonConfig = true;
-#  preferBuiltIn = true;
-#  ignoreConfigErrors = true;
-#  defconfig = "otter_defconfig";
-  autoModules = true;
+  modDirVersion = "${modDirVersion}";
+  configfile = ./kernel-config;
   version = "${modDirVersion}";
   extraMeta = {
     platforms = [ "aarch64-linux" ];
@@ -48,11 +42,9 @@ in (buildLinux (args // {
   };
 } // (args.argsOverride or { }))).overrideAttrs (old: {
   postUnpack = ''
-    patchShebangs source/lib/tests/module/gen_test_kallsyms.sh
-#    substituteInPlace source/arch/arm64/boot/dts/qcom/qcm6490-shift-otter.dts --replace-fail 'dr_mode = "otg"' 'dr_mode = "host"'
+    patchShebangs lib/tests/module/gen_test_kallsyms.sh
 #    cat arch/arm64/configs/defconfig arch/arm64/configs/otter_defconfig | uniq > defconfig
 #    mv defconfig arch/arm64/configs/otter_defconfig
-#    cp ${./qcm6490-shift-otter.dts} source/arch/arm64/boot/dts/qcom/qcm6490-shift-otter.dts
   '';
   NIX_CFLAGS_COMPILE = "-Wno-error=return-type -Wno-error=implicit-function-declaration";
 })

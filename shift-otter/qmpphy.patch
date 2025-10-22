@@ -1,0 +1,29 @@
+From 8e3d151cd3672e554f28242af155f9db231f3887 Mon Sep 17 00:00:00 2001
+From: matthewcroughan <matt@croughan.sh>
+Date: Thu, 28 Aug 2025 14:02:24 +0100
+Subject: [PATCH] hardcode usb3+dp
+
+---
+ arch/arm64/boot/dts/qcom/qcm6490-shift-otter.dts | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm64/boot/dts/qcom/qcm6490-shift-otter.dts b/arch/arm64/boot/dts/qcom/qcm6490-shift-otter.dts
+index 0a0fa4b46598..9e148c09dbfa 100644
+--- a/arch/arm64/boot/dts/qcom/qcm6490-shift-otter.dts
++++ b/arch/arm64/boot/dts/qcom/qcm6490-shift-otter.dts
+@@ -1124,7 +1124,10 @@ &usb_1_qmpphy {
+ 	vdda-phy-supply = <&vreg_l6b>;
+ 	vdda-pll-supply = <&vreg_l1b>;
+ 
+-	mode-switch;
++	qcom,combo-initial-mode = "usb3+dp";
++
++	/delete-property/ mode-switch;
++	/delete-property/ orientation-switch;
+ 
+ 	status = "okay";
+ };
+-- 
+2.50.1
+
+

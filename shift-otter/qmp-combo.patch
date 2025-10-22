@@ -1,0 +1,77 @@
+From 672f3876d72d3986bbabf8eee71e32890e588db9 Mon Sep 17 00:00:00 2001
+From: Neil Armstrong <neil.armstrong@linaro.org>
+Date: Thu, 14 Aug 2025 16:14:21 +0100
+Subject: [PATCH] phy: qcom: qmp-combo: get default qmpphy_mode from DT
+
+The QMP USB3/DP Combo PHY hosts an USB3 phy and a DP PHY on top
+of a combo glue to route either lanes to the 4 shared physical lanes.
+
+The routing of the lanes can be:
+- 2 DP + 2 USB3
+- 4 DP
+- 2 USB3
+
+And the layout of the lanes can be swpped depending of an
+eventual USB-C connector orientation.
+
+Nevertheless those QMP Comby PHY can be statically used to
+drive a DisplayPort connector, DP->HDMI bridge, USB3 A Connector...
+
+But if a 4lanes DP->HDMI bridge is directly connected to the
+QMP Comby PHY lanes, in the default routing 2 or the 4 lanes would
+probbaly be USB3, making the DP->HDMI bridge non functional.
+
+Support the property to set in which layout mode the QMP Comby PHY
+should be as startup.
+
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+---
+ drivers/phy/qualcomm/phy-qcom-qmp-combo.c | 20 +++++++++++++++++++-
+ 1 file changed, 19 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/phy/qualcomm/phy-qcom-qmp-combo.c b/drivers/phy/qualcomm/phy-qcom-qmp-combo.c
+index 7b5af30f1d028..622db8a204d3c 100644
+--- a/drivers/phy/qualcomm/phy-qcom-qmp-combo.c
++++ b/drivers/phy/qualcomm/phy-qcom-qmp-combo.c
+@@ -4117,13 +4117,19 @@ static struct phy *qmp_combo_phy_xlate(struct device *dev, const struct of_phand
+ 	return ERR_PTR(-EINVAL);
+ }
+ 
++static const char * const qmpphy_mode_str[] = {
++	[QMPPHY_MODE_USB3DP] = "usb3+dp",
++	[QMPPHY_MODE_DP_ONLY] = "dp",
++	[QMPPHY_MODE_USB3_ONLY] = "usb3",
++};
++
+ static int qmp_combo_probe(struct platform_device *pdev)
+ {
+ 	struct qmp_combo *qmp;
+ 	struct device *dev = &pdev->dev;
+ 	struct device_node *dp_np, *usb_np;
+ 	struct phy_provider *phy_provider;
+-	int ret;
++	int ret, i;
+ 
+ 	qmp = devm_kzalloc(dev, sizeof(*qmp), GFP_KERNEL);
+ 	if (!qmp)
+@@ -4195,6 +4201,18 @@ static int qmp_combo_probe(struct platform_device *pdev)
+ 	 */
+ 	qmp->qmpphy_mode = QMPPHY_MODE_USB3DP;
+ 
++	/* Replace with DT provided mode */
++	if (of_find_property(dev->of_node, "qcom,combo-initial-mode", NULL)) {
++		for (i = 0; i < ARRAY_SIZE(qmpphy_mode_str); ++i) {
++			ret = of_property_match_string(dev->of_node, "qcom,combo-initial-mode",
++						       qmpphy_mode_str[i]);
++			if (!ret) {
++				qmp->qmpphy_mode = i;
++				break;
++			}
++		}
++	}
++
+ 	qmp->usb_phy = devm_phy_create(dev, usb_np, &qmp_combo_usb_phy_ops);
+ 	if (IS_ERR(qmp->usb_phy)) {
+ 		ret = PTR_ERR(qmp->usb_phy);
+-- 
+GitLab

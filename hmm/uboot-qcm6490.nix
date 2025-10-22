@@ -15,11 +15,11 @@ buildUBoot {
     #url = "https://git.codelinaro.org/linaro/qcomlt/u-boot.git";
     #rev = "8295989d91f1a3297f1de3f9be50a1b44618bbe3";
     url = "https://github.com/u-boot/u-boot.git";
-    rev = "dc6c80056e21a27e28e1be62ac724302ef526841";
+    rev = "2ab10ed2399b0c1c790733884935c94ad65aa2a8";
 #    allRefs = true;
   };
   patches = [
-    ./cd-gpio.patch
+#    ./cd-gpio.patch
   ];
   extraConfig = ''
     CONFIG_CMD_HASH=y
@@ -32,7 +32,6 @@ buildUBoot {
     mv f configs/qcom_defconfig
     cat configs/qcm6490_defconfig board/qualcomm/qcom-phone.config > f
     mv f configs/qcm6490_defconfig
-    #cp ${./temp.dts} dts/upstream/src/arm64/qcom/qcm6490-shift-otter.dts
     #echo "CONFIG_MIPI_DPHY_HELPERS=y" >> configs/qcom_defconfig
     #echo "QCOM_UFS_FORCE_LOW_POWER_MODE=y" >> configs/qcm6490_defconfig
     #echo "CMD_UFETCH=y" >> configs/qcom_defconfig
@@ -48,13 +47,13 @@ buildUBoot {
     #substituteInPlace drivers/ufs/ufs.c --replace-fail 'wmb();' 'udelay(1000);'
     ln -s ${qtestsign}/qtestsign.py $(pwd)/qtestsign.py
   '';
-  extraMakeFlags = [ "DEVICE_TREE=qcom/qcm6490-shift-otter" ];
+  extraMakeFlags = [ "DEVICE_TREE=qcom/qcm6490-fairphone-fp5" ];
   defconfig = "qcom_defconfig";
   #defconfig = "qcm6490_defconfig";
   extraMeta.platforms = ["aarch64-linux"];
   nativeBuildInputs = [ xxd bison flex openssl gnutls python android-tools ];
 #  BL31 = "${BL31}/bl31.bin";
-  filesToInstall = ["u-boot*" "dts/upstream/src/arm64/qcom/qcm6490-shift-otter.dtb" ];
+  filesToInstall = ["u-boot*" "dts/upstream/src/arm64/qcom/qcm6490-fairphone-fp5.dtb" ];
   #preInstall = ''
   #  #${python}/bin/python ${qtestsign}/qtestsign.py -v6 aboot -o $out/u-boot.mbn $out/u-boot.elf
   #'';

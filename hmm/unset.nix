@@ -4,12 +4,13 @@
     {
       name = "config-disable-unused-modules";
       patch = null;
-      structuredExtraConfig = {
+      extraStructuredConfig = {
         ROCKCHIP_DW_HDMI_QP = lib.mkForce lib.kernel.unset;
         DRM_AMD_ISP = lib.mkForce lib.kernel.unset;
         "8139TOO_8129" = lib.mkForce lib.kernel.unset;
         "8139TOO_PIO" = lib.mkForce lib.kernel.unset;
         ACPI_APEI = lib.mkForce lib.kernel.unset;
+        ACPI_DEBUG = lib.mkForce lib.kernel.unset;
         ACPI_APEI_GHES = lib.mkForce lib.kernel.unset;
         ACPI_FPDT = lib.mkForce lib.kernel.unset;
         ACPI_HMAT = lib.mkForce lib.kernel.unset;

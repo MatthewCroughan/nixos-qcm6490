@@ -5,11 +5,11 @@
         "nixpkgs-lib": "nixpkgs-lib"
       },
       "locked": {
-        "lastModified": 1749398372,
-        "narHash": "sha256-tYBdgS56eXYaWVW3fsnPQ/nFlgWi/Z2Ymhyu21zVM98=",
+        "lastModified": 1759362264,
+        "narHash": "sha256-wfG0S7pltlYyZTM+qqlhJ7GMw2fTF4mLKCIVhLii/4M=",
         "owner": "hercules-ci",
         "repo": "flake-parts",
-        "rev": "9305fe4e5c2a6fcf5ba6a3ff155720fbe4076569",
+        "rev": "758cf7296bee11f1706a574c77d072b8a7baa881",
         "type": "github"
       },
       "original": {
@@ -18,29 +18,45 @@
         "type": "github"
       }
     },
+    "linux": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1761166940,
+        "narHash": "sha256-tj0LjpYh6sfoYZS/tBd2DA2nSvfzz2GexZzqBY5dl4s=",
+        "ref": "refs/heads/xreal-attempt-17",
+        "rev": "05e6bfae27f5cf1bb120bc29368e5fc612b2a01d",
+        "revCount": 1400545,
+        "type": "git",
+        "url": "file:/home/matthew/git/linux"
+      },
+      "original": {
+        "type": "git",
+        "url": "file:/home/matthew/git/linux"
+      }
+    },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1750772819,
-        "narHash": "sha256-P99ZtOI9GxNbrCWe5hKhfCscmoNDp6JMSZxWwuxRWeA=",
+        "lastModified": 1760746517,
+        "narHash": "sha256-GI5em7LfQ2kcpaoxeJBcwjSTOqiNT3JPvtrqKFkedkk=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "1795b08791bf8b17292d23df49474fdcb11dc929",
+        "rev": "94e79f47bf029fdd1ea84ef456057952e85ee95f",
         "type": "github"
       },
       "original": {
         "owner": "nixos",
-        "ref": "master",
+        "ref": "staging-next",
         "repo": "nixpkgs",
         "type": "github"
       }
     },
     "nixpkgs-lib": {
       "locked": {
-        "lastModified": 1748740939,
-        "narHash": "sha256-rQaysilft1aVMwF14xIdGS3sj1yHlI6oKQNBRTF40cc=",
+        "lastModified": 1754788789,
+        "narHash": "sha256-x2rJ+Ovzq0sCMpgfgGaaqgBSwY+LST+WbZ6TytnT9Rk=",
         "owner": "nix-community",
         "repo": "nixpkgs.lib",
-        "rev": "656a64127e9d791a334452c6b6606d17539476e2",
+        "rev": "a73b9c743612e4244d865a2fdee11865283c04e6",
         "type": "github"
       },
       "original": {
@@ -52,6 +68,7 @@
     "root": {
       "inputs": {
         "flake-parts": "flake-parts",
+        "linux": "linux",
         "nixpkgs": "nixpkgs"
       }
     }
