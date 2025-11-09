@@ -153,15 +153,15 @@
 #    '')
     (pkgs.stdenv.mkDerivation {
       name = "firmware-shift-otter";
-      src = /home/matthew/git/firmware-shift-otter;
-      #src = pkgs.fetchFromGitHub {
-      #  repo = "firmware-shift-otter";
-      #  owner = "SomeBlobs";
-      #  rev = "28e9784221d11a49f6cebe8df637244a6fc91e30";
-      #  hash = "sha256-4Wc+J/91QER/GjMGZbgogmOvOqGDdBxPDHJUsRyNpd4=";
-      #  #rev = "75058a91d2dd296a5a92b348d767e2c499e551fe";
-      #  #hash = "sha256-AlZ1cHzk5sI8hIHV9Etva7AZyVADbpuZQhXeHZ0aboA=";
-      #};
+      #src = /home/matthew/git/firmware-shift-otter;
+      src = pkgs.fetchFromGitHub {
+        repo = "firmware-shift-otter";
+        owner = "SomeBlobs";
+        rev = "28e9784221d11a49f6cebe8df637244a6fc91e30";
+        hash = "sha256-4Wc+J/91QER/GjMGZbgogmOvOqGDdBxPDHJUsRyNpd4=";
+        #rev = "75058a91d2dd296a5a92b348d767e2c499e551fe";
+        #hash = "sha256-AlZ1cHzk5sI8hIHV9Etva7AZyVADbpuZQhXeHZ0aboA=";
+      };
       phases = [ "unpackPhase" "installPhase" ];
       nativeBuildInputs = [
         pil-squasher
