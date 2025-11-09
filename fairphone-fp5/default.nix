@@ -52,6 +52,7 @@
         ./qcm6490.nix
         ./configuration.nix
         ./repart.nix
+        ../common/development.nix
       ];
     };
   };

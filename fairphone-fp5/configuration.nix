@@ -115,8 +115,8 @@
       src = pkgs.fetchFromGitHub {
         owner = "FairBlobs";
         repo = "FP5-firmware";
-        rev = "798524050d9f4802450cd4f1bf46ddd105b6ae4f";
-        hash = "sha256-c/x9VwtlKyKp1vSRXJemyo9R3C3/E2o77c89FmBwTw8=";
+        rev = "ebb4d6a47865e78a9fd6689394221a5bb3d621dd";
+        hash = "sha256-SVZqkSYyQw876dQ4sjW2/G33y+jA73bhylT+FhvdoGk=";
       };
       phases = [ "unpackPhase" "installPhase" ];
       nativeBuildInputs = [

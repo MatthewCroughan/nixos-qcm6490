@@ -1,7 +1,7 @@
 { inputs, ... }: {
   perSystem = { config, self', inputs', pkgs, system, ... }: {
     packages.qcm6490-shift-otter-uboot-bootimg = let
-      uboot = pkgs.callPackage ./uboot-qcm6490.nix {};
+      uboot = pkgs.ubootQCM6490;
     in pkgs.runCommand "qcm6490-shift-otter-uboot-bootimg" { nativeBuildInputs = with pkgs; [
       android-tools
     ]; } ''
@@ -52,6 +52,7 @@
         ./qcm6490.nix
         ./configuration.nix
         ./repart.nix
+        ../common/development.nix
       ];
     };
   };

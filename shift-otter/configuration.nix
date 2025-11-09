@@ -1,10 +1,10 @@
 { lib, pkgs, config, ... }:
 {
-#  imports = [ ./hack.nix ];
   imports = [
     ./bullshit.nix
     ./wireless.nix
   ];
+
   fileSystems."/".device = "/dev/disk/by-partlabel/userdata";
   fileSystems."/".fsType = "ext4";
 
@@ -14,59 +14,44 @@
     volumeLabel = "nixos";
   };
 
-#  networking.wireless = {
-#    enable = true;
-#    networks = {
-#      DoESLiverpool.psk = "decafbad00";
-#      DoESLiverpool-5g.psk = "decafbad00";
-#      gast-ost.psk = "6isgpu9e";
-#    };
-#  };
-
   boot.initrd.systemd.emergencyAccess = true;
 
   hardware.bluetooth.enable = true;
 
-#  boot.initrd.compressor = "zstd";
-
   console.earlySetup = true;
 
-  boot.kernelParams = [
-    "boot.shell_on_fail"
-  ];
-
-  boot.initrd.kernelModules = lib.mkForce [
-    "fsa4480"
-    "msm"
-    "panel-shift-sh8804b"
-    "qcom_glink_smem"
-    "pmic_glink"
-    "ucsi_glink"
-    "gpi"
-#    "focaltech_ts"
-    "ext2"
-    "ext4"
-#    "ahci"
-#    "sata_nv"
-#    "sata_via"
-#    "sata_sis"
-#    "sata_uli"
-#    "ata_piix"
-#    "pata_marvell"
-#    "nvme"
-#    "sd_mod"
-#    "sr_mod"
-    "mmc_block"
-#    "uhci_hcd"
-#    "ehci_hcd"
-#    "ehci_pci"
-#    "ohci_hcd"
-#    "ohci_pci"
-#    "xhci_hcd"
-#    "xhci_pci"
-    "usbhid"
-    "hid_generic"
-  ];
+#  boot.initrd.kernelModules = lib.mkForce [
+#    "fsa4480"
+#    "msm"
+#    "panel-shift-sh8804b"
+#    "qcom_glink_smem"
+#    "pmic_glink"
+#    "ucsi_glink"
+#    "gpi"
+##    "focaltech_ts"
+#    "ext2"
+#    "ext4"
+##    "ahci"
+##    "sata_nv"
+##    "sata_via"
+##    "sata_sis"
+##    "sata_uli"
+##    "ata_piix"
+##    "pata_marvell"
+##    "nvme"
+##    "sd_mod"
+##    "sr_mod"
+#    "mmc_block"
+##    "uhci_hcd"
+##    "ehci_hcd"
+##    "ehci_pci"
+##    "ohci_hcd"
+##    "ohci_pci"
+##    "xhci_hcd"
+##    "xhci_pci"
+#    "usbhid"
+#    "hid_generic"
+#  ];
 
 #  boot.initrd.kernelModules = lib.mkForce [
 #    "focaltech_ts"

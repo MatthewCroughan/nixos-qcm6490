@@ -4,7 +4,7 @@
 , fetchFromGitHub
 , ... } @ args:
 let
-  src = builtins.fetchTree "github:sc7280-mainline/linux?rev=5ac4ccb053f66b928fefd8b5d8243009555ce41b";
+#  src = builtins.fetchTree "github:sc7280-mainline/linux?rev=5ac4ccb053f66b928fefd8b5d8243009555ce41b";
 
 #  src = fetchFromGitHub {
 #    owner = "sc7280-mainline";
@@ -22,7 +22,7 @@ let
   kernelVersion = rec {
     # Fully constructed string, example: "5.10.0-rc5".
     string = "${version + "." + patchlevel + "." + sublevel + (lib.optionalString (extraversion != "") extraversion)}";
-    file = "${src}/Makefile";
+    file = "${args.src}/Makefile";
     version = toString (builtins.match ".+VERSION = ([0-9]+).+" (builtins.readFile file));
     patchlevel = toString (builtins.match ".+PATCHLEVEL = ([0-9]+).+" (builtins.readFile file));
     sublevel = toString (builtins.match ".+SUBLEVEL = ([0-9]+).+" (builtins.readFile file));
@@ -31,12 +31,13 @@ let
   };
   modDirVersion = "${kernelVersion.string}";
 in (buildLinux (args // {
-  inherit src;
+  src = args.src;
   modDirVersion = "${modDirVersion}";
   enableCommonConfig = true;
   preferBuiltIn = true;
   ignoreConfigErrors = true;
-  defconfig = "fp5_defconfig";
+  #defconfig = "fp5_defconfig";
+  defconfig = "defconfig";
   autoModules = true;
   version = "${modDirVersion}";
   extraMeta = {

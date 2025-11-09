@@ -1,4 +1,4 @@
-{ pkgs, lib, ... }:
+{ pkgs, lib, inputs, ... }:
 {
 #  imports = [ ./unset.nix ];
   hardware.deviceTree.name = "qcom/qcm6490-fairphone-fp5.dtb";
@@ -22,12 +22,21 @@
 #    linux-kernel.installTarget = "zinstall";
 #  };
 
+  boot.initrd.kernelModules = [
+    "ufs-qcom"
+    "ext4"
+    "sd_mod"
+    "sr_mod"
+    "mmc_block"
+#    "ufshcd"
+    "ufshcd-core"
+  ];
 
   boot.kernelPatches = [
     {
       name = "config-disable-zboot";
       patch = null;
-      extraStructuredConfig = {
+      structuredExtraConfig = {
       #  ACPI_HOTPLUG_CPU = lib.mkForce lib.kernel.unset;
         #SND_SOC_SC8280XP = lib.mkForce lib.kernel.no;
         #SND_SOC_X1E80100 = lib.mkForce lib.kernel.no;
@@ -54,6 +63,7 @@
         EFI_ZBOOT = lib.mkForce lib.kernel.yes;
         KERNEL_ZSTD = lib.mkForce lib.kernel.yes;
         RD_ZSTD = lib.mkForce lib.kernel.yes;
+        SCSI_UFSHCD = lib.mkForce lib.kernel.yes;
       };
       #extraStructuredConfig = {
       #  TOUCHSCREEN_GOODIX_BERLIN_SPI = lib.mkForce lib.kernel.module;
@@ -68,7 +78,8 @@
   nixpkgs.hostPlatform = lib.recursiveUpdate (lib.systems.elaborate "aarch64-linux") {
     linux-kernel = {
       name = "aarch64-multiplatform";
-      baseConfig = "fp5_defconfig";
+      #baseConfig = "fp5_defconfig";
+      baseConfig = "defconfig";
       DTB = true;
       #autoModules = true;
       extraConfig = "";
@@ -81,7 +92,9 @@
     };
   };
 
-  boot.kernelPackages = pkgs.linuxPackagesFor (pkgs.callPackage ./kernel.nix { });
+  boot.kernelPackages = pkgs.linuxPackagesFor (pkgs.callPackage ./kernel.nix {
+    src = inputs.linux;
+  });
 
   boot.loader = {
     systemd-boot.enable = true;

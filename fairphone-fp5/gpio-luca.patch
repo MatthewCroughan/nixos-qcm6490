@@ -1,0 +1,509 @@
+diff --git a/board/qualcomm/debug-sm6350.config b/board/qualcomm/debug-sm6350.config
+new file mode 100644
+index 00000000000..1379ddeac93
+--- /dev/null
++++ b/board/qualcomm/debug-sm6350.config
+@@ -0,0 +1,5 @@
++CONFIG_DEBUG_UART=y
++CONFIG_DEBUG_UART_ANNOUNCE=y
++CONFIG_DEBUG_UART_BASE=0x98c000
++CONFIG_DEBUG_UART_MSM_GENI=y
++CONFIG_DEBUG_UART_CLOCK=14745600
+diff --git a/configs/qcom_defconfig b/configs/qcom_defconfig
+index 8d1269b4634..995ade1e1b6 100644
+--- a/configs/qcom_defconfig
++++ b/configs/qcom_defconfig
+@@ -60,6 +60,7 @@ CONFIG_CLK_QCOM_QCS8300=y
+ CONFIG_CLK_QCOM_SA8775P=y
+ CONFIG_CLK_QCOM_SDM845=y
+ CONFIG_CLK_QCOM_SM6115=y
++CONFIG_CLK_QCOM_SM6350=y
+ CONFIG_CLK_QCOM_SM8150=y
+ CONFIG_CLK_QCOM_SM8250=y
+ CONFIG_CLK_QCOM_SM8550=y
+@@ -112,6 +113,7 @@ CONFIG_PINCTRL_QCOM_SA8775P=y
+ CONFIG_PINCTRL_QCOM_SC7280=y
+ CONFIG_PINCTRL_QCOM_SDM845=y
+ CONFIG_PINCTRL_QCOM_SM6115=y
++CONFIG_PINCTRL_QCOM_SM6350=y
+ CONFIG_PINCTRL_QCOM_SM8150=y
+ CONFIG_PINCTRL_QCOM_SM8250=y
+ CONFIG_PINCTRL_QCOM_SM8550=y
+diff --git a/drivers/clk/clk-stub.c b/drivers/clk/clk-stub.c
+index 5f5aca41d5b..5863ec72abe 100644
+--- a/drivers/clk/clk-stub.c
++++ b/drivers/clk/clk-stub.c
+@@ -52,6 +52,7 @@ static const struct udevice_id stub_clk_ids[] = {
+ 	{ .compatible = "qcom,rpmcc" },
+ 	{ .compatible = "qcom,sdm845-rpmh-clk" },
+ 	{ .compatible = "qcom,sc7280-rpmh-clk" },
++	{ .compatible = "qcom,sm6350-rpmh-clk" },
+ 	{ .compatible = "qcom,sm8150-rpmh-clk" },
+ 	{ .compatible = "qcom,sm8250-rpmh-clk" },
+ 	{ .compatible = "qcom,sm8550-rpmh-clk" },
+diff --git a/drivers/clk/qcom/Kconfig b/drivers/clk/qcom/Kconfig
+index 34e41461e72..347d16de3db 100644
+--- a/drivers/clk/qcom/Kconfig
++++ b/drivers/clk/qcom/Kconfig
+@@ -103,6 +103,14 @@ config CLK_QCOM_SM6115
+ 	  on the Snapdragon SM6115 SoC. This driver supports the clocks
+ 	  and resets exposed by the GCC hardware block.
+ 
++config CLK_QCOM_SM6350
++	bool "Qualcomm SM6350 GCC"
++	select CLK_QCOM
++	help
++	  Say Y here to enable support for the Global Clock Controller
++	  on the Snapdragon SM6350 SoC. This driver supports the clocks
++	  and resets exposed by the GCC hardware block.
++
+ config CLK_QCOM_SM8150
+ 	bool "Qualcomm SM8150 GCC"
+ 	select CLK_QCOM
+diff --git a/drivers/clk/qcom/Makefile b/drivers/clk/qcom/Makefile
+index b3d95b0faa3..a85c77ad1e7 100644
+--- a/drivers/clk/qcom/Makefile
++++ b/drivers/clk/qcom/Makefile
+@@ -16,6 +16,7 @@ obj-$(CONFIG_CLK_QCOM_QCS615) += clock-qcs615.o
+ obj-$(CONFIG_CLK_QCOM_SA8775P) += clock-sa8775p.o
+ obj-$(CONFIG_CLK_QCOM_SC7280) += clock-sc7280.o
+ obj-$(CONFIG_CLK_QCOM_SM6115) += clock-sm6115.o
++obj-$(CONFIG_CLK_QCOM_SM6350) += clock-sm6350.o
+ obj-$(CONFIG_CLK_QCOM_SM8150) += clock-sm8150.o
+ obj-$(CONFIG_CLK_QCOM_SM8250) += clock-sm8250.o
+ obj-$(CONFIG_CLK_QCOM_SM8550) += clock-sm8550.o
+diff --git a/drivers/clk/qcom/clock-sm6350.c b/drivers/clk/qcom/clock-sm6350.c
+new file mode 100644
+index 00000000000..ee6653848c7
+--- /dev/null
++++ b/drivers/clk/qcom/clock-sm6350.c
+@@ -0,0 +1,193 @@
++// SPDX-License-Identifier: BSD-3-Clause
++/*
++ * Clock drivers for Qualcomm sm6350
++ *
++ * (C) Copyright 2024 Linaro Ltd.
++ * (C) Copyright 2025 Luca Weiss <luca.weiss@fairphone.com>
++ */
++
++#include <clk-uclass.h>
++#include <dm.h>
++#include <linux/delay.h>
++#include <asm/io.h>
++#include <linux/bug.h>
++#include <linux/bitops.h>
++#include <dt-bindings/clock/qcom,gcc-sm6350.h>
++
++#include "clock-qcom.h"
++
++#undef CFG_CLK_SRC_GPLL0_ODD
++#define CFG_CLK_SRC_GPLL0_ODD (2 << 8)
++#define CFG_CLK_SRC_GPLL6_EVEN (2 << 8)
++
++#define GCC_SE12_UART_RCG_REG 0x223a8
++#define GCC_SDCC2_APPS_CLK_SRC_REG 0x2000c
++
++#define APCS_GPLL7_STATUS 0x7000
++#define APCS_GPLLX_ENA_REG 0x52010
++
++static const struct freq_tbl ftbl_gcc_qupv3_wrap1_s3_clk_src[] = {
++	F(7372800, CFG_CLK_SRC_GPLL0_EVEN, 1, 384, 15625),
++	F(14745600, CFG_CLK_SRC_GPLL0_EVEN, 1, 768, 15625),
++	F(19200000, CFG_CLK_SRC_CXO, 1, 0, 0),
++	F(29491200, CFG_CLK_SRC_GPLL0_EVEN, 1, 1536, 15625),
++	F(32000000, CFG_CLK_SRC_GPLL0_EVEN, 1, 8, 75),
++	F(48000000, CFG_CLK_SRC_GPLL0_EVEN, 1, 4, 25),
++	F(64000000, CFG_CLK_SRC_GPLL0_EVEN, 1, 16, 75),
++	F(75000000, CFG_CLK_SRC_GPLL0_EVEN, 4, 0, 0),
++	F(80000000, CFG_CLK_SRC_GPLL0_EVEN, 1, 4, 15),
++	F(96000000, CFG_CLK_SRC_GPLL0_EVEN, 1, 8, 25),
++	F(100000000, CFG_CLK_SRC_GPLL0_EVEN, 3, 0, 0),
++	F(102400000, CFG_CLK_SRC_GPLL0_EVEN, 1, 128, 375),
++	F(112000000, CFG_CLK_SRC_GPLL0_EVEN, 1, 28, 75),
++	F(117964800, CFG_CLK_SRC_GPLL0_EVEN, 1, 6144, 15625),
++	F(120000000, CFG_CLK_SRC_GPLL0_EVEN, 2.5, 0, 0),
++	F(128000000, CFG_CLK_SRC_GPLL6_EVEN, 3, 0, 0),
++	{}
++};
++
++static const struct freq_tbl ftbl_gcc_sdcc2_apps_clk_src[] = {
++	F(400000, CFG_CLK_SRC_CXO, 12, 1, 4),
++	F(9600000, CFG_CLK_SRC_CXO, 2, 0, 0),
++	F(19200000, CFG_CLK_SRC_CXO, 1, 0, 0),
++	F(25000000, CFG_CLK_SRC_GPLL0_ODD, 8, 0, 0),
++	F(50000000, CFG_CLK_SRC_GPLL0_ODD, 4, 0, 0),
++	F(100000000, CFG_CLK_SRC_GPLL0_ODD, 2, 0, 0),
++	F(202000000, CFG_CLK_SRC_GPLL7, 4, 0, 0),
++	{}
++};
++
++static struct pll_vote_clk gpll7_vote_clk = {
++	.status = APCS_GPLL7_STATUS,
++	.status_bit = BIT(31),
++	.ena_vote = APCS_GPLLX_ENA_REG,
++	.vote_bit = BIT(7),
++};
++
++static ulong sm6350_set_rate(struct clk *clk, ulong rate)
++{
++	struct msm_clk_priv *priv = dev_get_priv(clk->dev);
++	const struct freq_tbl *freq;
++
++	if (clk->id < priv->data->num_clks)
++		debug("%s: %s, requested rate=%ld\n", __func__,
++		      priv->data->clks[clk->id].name, rate);
++
++	switch (clk->id) {
++	case GCC_QUPV3_WRAP1_S3_CLK: /*UART9*/
++		freq = qcom_find_freq(ftbl_gcc_qupv3_wrap1_s3_clk_src, rate);
++		clk_rcg_set_rate_mnd(priv->base, GCC_SE12_UART_RCG_REG,
++				     freq->pre_div, freq->m, freq->n, freq->src,
++				     16);
++
++		return freq->freq;
++	case GCC_SDCC2_APPS_CLK:
++		/* Enable GPLL7 so that we can point SDCC2_APPS_CLK_SRC at it */
++		clk_enable_gpll0(priv->base, &gpll7_vote_clk);
++		freq = qcom_find_freq(ftbl_gcc_sdcc2_apps_clk_src, rate);
++		WARN(freq->src != CFG_CLK_SRC_GPLL7,
++		     "SDCC2_APPS_CLK_SRC not set to GPLL7, requested rate %lu\n",
++		     rate);
++		clk_rcg_set_rate_mnd(priv->base, GCC_SDCC2_APPS_CLK_SRC_REG,
++				     freq->pre_div, freq->m, freq->n,
++				     CFG_CLK_SRC_GPLL7, 8);
++
++		return rate;
++	default:
++		return 0;
++	}
++}
++
++static const struct gate_clk sm6350_clks[] = {
++	GATE_CLK(GCC_AGGRE_UFS_PHY_AXI_CLK, 0x3e014, 0x00000001),
++	GATE_CLK(GCC_AGGRE_USB3_PRIM_AXI_CLK, 0x3e010, 0x00000001),
++	GATE_CLK(GCC_CFG_NOC_USB3_PRIM_AXI_CLK, 0x1101c, 0x00000001),
++	GATE_CLK(GCC_QUPV3_WRAP1_S3_CLK, 0x52000, 0x00800000),
++	GATE_CLK(GCC_QUPV3_WRAP_1_M_AHB_CLK, 0x52000, 0x00040000),
++	GATE_CLK(GCC_QUPV3_WRAP_1_S_AHB_CLK, 0x52000, 0x00080000),
++	GATE_CLK(GCC_SDCC2_AHB_CLK, 0x20008, 0x00000001),
++	GATE_CLK(GCC_SDCC2_APPS_CLK, 0x20004, 0x00000001),
++	GATE_CLK(GCC_UFS_MEM_CLKREF_CLK, 0x8c000, 0x00000001),
++	GATE_CLK(GCC_UFS_PHY_AHB_CLK, 0x3a00c, 0x00000001),
++	GATE_CLK(GCC_UFS_PHY_AXI_CLK, 0x3a034, 0x00000001),
++	GATE_CLK(GCC_UFS_PHY_ICE_CORE_CLK, 0x3a0a4, 0x00000001),
++	GATE_CLK(GCC_UFS_PHY_PHY_AUX_CLK, 0x3a0ac, 0x00000001),
++	GATE_CLK(GCC_UFS_PHY_RX_SYMBOL_0_CLK, 0x3a014, 0x00000001),
++	GATE_CLK(GCC_UFS_PHY_RX_SYMBOL_1_CLK, 0x3a018, 0x00000001),
++	GATE_CLK(GCC_UFS_PHY_TX_SYMBOL_0_CLK, 0x3a010, 0x00000001),
++	GATE_CLK(GCC_UFS_PHY_UNIPRO_CORE_CLK, 0x3a09c, 0x00000001),
++	GATE_CLK(GCC_USB30_PRIM_MASTER_CLK, 0x1a00c, 0x00000001),
++	GATE_CLK(GCC_USB30_PRIM_MOCK_UTMI_CLK, 0x1a018, 0x00000001),
++	GATE_CLK(GCC_USB30_PRIM_SLEEP_CLK, 0x1a014, 0x00000001),
++	GATE_CLK(GCC_USB3_PRIM_CLKREF_CLK, 0x8c010, 0x00000001),
++	GATE_CLK(GCC_USB3_PRIM_PHY_AUX_CLK, 0x1a050, 0x00000001),
++	GATE_CLK(GCC_USB3_PRIM_PHY_COM_AUX_CLK, 0x1a054, 0x00000001),
++	GATE_CLK(GCC_USB3_PRIM_PHY_PIPE_CLK, 0x1a058, 0x00000001),
++};
++
++static int sm6350_enable(struct clk *clk)
++{
++	struct msm_clk_priv *priv = dev_get_priv(clk->dev);
++
++	if (priv->data->num_clks < clk->id) {
++		debug("%s: unknown clk id %lu\n", __func__, clk->id);
++		return 0;
++	}
++
++	debug("%s: clk %s\n", __func__, sm6350_clks[clk->id].name);
++
++	switch (clk->id) {
++	case GCC_USB30_PRIM_MASTER_CLK:
++		qcom_gate_clk_en(priv, GCC_USB3_PRIM_PHY_AUX_CLK);
++		qcom_gate_clk_en(priv, GCC_USB3_PRIM_PHY_COM_AUX_CLK);
++		break;
++	}
++
++	return qcom_gate_clk_en(priv, clk->id);
++}
++
++static const struct qcom_reset_map sm6350_gcc_resets[] = {
++	[GCC_QUSB2PHY_PRIM_BCR] = { 0x1d000 },
++	[GCC_QUSB2PHY_SEC_BCR] = { 0x1e000 },
++	[GCC_SDCC1_BCR] = { 0x4b000 },
++	[GCC_SDCC2_BCR] = { 0x20000 },
++	[GCC_UFS_PHY_BCR] = { 0x3a000 },
++	[GCC_USB30_PRIM_BCR] = { 0x1a000 },
++	[GCC_USB3_PHY_PRIM_BCR] = { 0x1c000 },
++	[GCC_USB3_DP_PHY_PRIM_BCR] = { 0x1c008 },
++};
++
++static const struct qcom_power_map sm6350_gdscs[] = {
++	[USB30_PRIM_GDSC] = { 0x1a004 },
++	[UFS_PHY_GDSC] = { 0x3a004 },
++	[HLOS1_VOTE_MMNOC_MMU_TBU_HF0_GDSC] = { 0xb7040 },
++	[HLOS1_VOTE_MMNOC_MMU_TBU_HF1_GDSC] = { 0xb7044 },
++};
++
++static struct msm_clk_data sm6350_gcc_data = {
++	.resets = sm6350_gcc_resets,
++	.num_resets = ARRAY_SIZE(sm6350_gcc_resets),
++	.clks = sm6350_clks,
++	.num_clks = ARRAY_SIZE(sm6350_clks),
++	.power_domains = sm6350_gdscs,
++	.num_power_domains = ARRAY_SIZE(sm6350_gdscs),
++
++	.enable = sm6350_enable,
++	.set_rate = sm6350_set_rate,
++};
++
++static const struct udevice_id gcc_sm6350_of_match[] = {
++	{
++		.compatible = "qcom,gcc-sm6350",
++		.data = (ulong)&sm6350_gcc_data,
++	},
++	{}
++};
++
++U_BOOT_DRIVER(gcc_sm6350) = {
++	.name = "gcc_sm6350",
++	.id = UCLASS_NOP,
++	.of_match = gcc_sm6350_of_match,
++	.bind = qcom_cc_bind,
++	.flags = DM_FLAG_PRE_RELOC,
++};
+diff --git a/drivers/gpio/qcom_spmi_gpio.c b/drivers/gpio/qcom_spmi_gpio.c
+index 22c8072534e..c540648497d 100644
+--- a/drivers/gpio/qcom_spmi_gpio.c
++++ b/drivers/gpio/qcom_spmi_gpio.c
+@@ -743,6 +743,8 @@ static int qcom_spmi_pmic_gpio_probe(struct udevice *dev)
+ }
+ 
+ static const struct udevice_id qcom_spmi_pmic_gpio_ids[] = {
++	{ .compatible = "qcom,pm6350-gpio" },
++	{ .compatible = "qcom,pm7325-gpio" },
+ 	{ .compatible = "qcom,pm8550-gpio" },
+ 	{ .compatible = "qcom,pm8550b-gpio" },
+ 	{ .compatible = "qcom,pm8550ve-gpio" },
+diff --git a/drivers/iommu/qcom-hyp-smmu.c b/drivers/iommu/qcom-hyp-smmu.c
+index 2e51ce4f242..161e0b60091 100644
+--- a/drivers/iommu/qcom-hyp-smmu.c
++++ b/drivers/iommu/qcom-hyp-smmu.c
+@@ -388,8 +388,9 @@ static struct iommu_ops qcom_smmu_ops = {
+ };
+ 
+ static const struct udevice_id qcom_smmu500_ids[] = {
+-	{ .compatible = "qcom,sdm845-smmu-500" },
+ 	{ .compatible = "qcom,sc7280-smmu-500" },
++	{ .compatible = "qcom,sdm845-smmu-500" },
++	{ .compatible = "qcom,sm6350-smmu-500" },
+ 	{ .compatible = "qcom,smmu-500", },
+ 	{ /* sentinel */ }
+ };
+diff --git a/drivers/phy/qcom/phy-qcom-qmp-ufs.c b/drivers/phy/qcom/phy-qcom-qmp-ufs.c
+index f3c606847fb..1c790be2e48 100644
+--- a/drivers/phy/qcom/phy-qcom-qmp-ufs.c
++++ b/drivers/phy/qcom/phy-qcom-qmp-ufs.c
+@@ -1593,6 +1593,7 @@ static struct phy_ops qmp_ufs_ops = {
+ static const struct udevice_id qmp_ufs_ids[] = {
+ 	{ .compatible = "qcom,sa8775p-qmp-ufs-phy", .data = (ulong)&sa8775p_ufsphy_cfg, },
+ 	{ .compatible = "qcom,sdm845-qmp-ufs-phy", .data = (ulong)&sdm845_ufsphy_cfg },
++	{ .compatible = "qcom,sm6350-qmp-ufs-phy", .data = (ulong)&sdm845_ufsphy_cfg },
+ 	{ .compatible = "qcom,sm8150-qmp-ufs-phy", .data = (ulong)&sm8150_ufsphy_cfg },
+ 	{ .compatible = "qcom,sm8250-qmp-ufs-phy", .data = (ulong)&sm8250_ufsphy_cfg },
+ 	{ .compatible = "qcom,qcs8300-qmp-ufs-phy", .data = (ulong)&sa8775p_ufsphy_cfg },
+diff --git a/drivers/pinctrl/qcom/Kconfig b/drivers/pinctrl/qcom/Kconfig
+index 21f81b66099..3f11d26f70e 100644
+--- a/drivers/pinctrl/qcom/Kconfig
++++ b/drivers/pinctrl/qcom/Kconfig
+@@ -89,6 +89,13 @@ config PINCTRL_QCOM_SM6115
+ 	  Say Y here to enable support for pinctrl on the Snapdragon SM6115 SoC,
+ 	  as well as the associated GPIO driver.
+ 
++config PINCTRL_QCOM_SM6350
++	bool "Qualcomm SM6350 Pinctrl"
++	select PINCTRL_QCOM
++	help
++	  Say Y here to enable support for pinctrl on the Snapdragon SM6350 SoC,
++	  as well as the associated GPIO driver.
++
+ config PINCTRL_QCOM_SM8150
+ 	bool "Qualcomm SM8150 Pinctrl"
+ 	select PINCTRL_QCOM
+diff --git a/drivers/pinctrl/qcom/Makefile b/drivers/pinctrl/qcom/Makefile
+index 6cb53838e71..7779dc635f0 100644
+--- a/drivers/pinctrl/qcom/Makefile
++++ b/drivers/pinctrl/qcom/Makefile
+@@ -15,6 +15,7 @@ obj-$(CONFIG_PINCTRL_QCOM_SC7280) += pinctrl-sc7280.o
+ obj-$(CONFIG_PINCTRL_QCOM_SDM660) += pinctrl-sdm660.o
+ obj-$(CONFIG_PINCTRL_QCOM_SDM845) += pinctrl-sdm845.o
+ obj-$(CONFIG_PINCTRL_QCOM_SM6115) += pinctrl-sm6115.o
++obj-$(CONFIG_PINCTRL_QCOM_SM6350) += pinctrl-sm6350.o
+ obj-$(CONFIG_PINCTRL_QCOM_SM8150) += pinctrl-sm8150.o
+ obj-$(CONFIG_PINCTRL_QCOM_SM8250) += pinctrl-sm8250.o
+ obj-$(CONFIG_PINCTRL_QCOM_SM8550) += pinctrl-sm8550.o
+diff --git a/drivers/pinctrl/qcom/pinctrl-sm6350.c b/drivers/pinctrl/qcom/pinctrl-sm6350.c
+new file mode 100644
+index 00000000000..1cbed77b55f
+--- /dev/null
++++ b/drivers/pinctrl/qcom/pinctrl-sm6350.c
+@@ -0,0 +1,104 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Qualcomm sm6350 pinctrl
++ *
++ * (C) Copyright 2024 Linaro Ltd.
++ * (C) Copyright 2025 Luca Weiss <luca.weiss@fairphone.com>
++ *
++ */
++
++#include <dm.h>
++
++#include "pinctrl-qcom.h"
++
++#define MAX_PIN_NAME_LEN 32
++static char pin_name[MAX_PIN_NAME_LEN] __section(".data");
++
++static const struct pinctrl_function msm_pinctrl_functions[] = {
++	{"qup13_f2", 1},
++	{"gpio", 0},
++};
++
++#define SDC_PINGROUP(pg_name, ctl, pull, drv)		\
++	{						\
++		.name = pg_name,			\
++		.ctl_reg = ctl,				\
++		.io_reg = 0,				\
++		.pull_bit = pull,			\
++		.drv_bit = drv,				\
++		.oe_bit = -1,				\
++		.in_bit = -1,				\
++		.out_bit = -1,				\
++	}
++
++#define UFS_RESET(pg_name, offset)			\
++	{						\
++		.name = pg_name,			\
++		.ctl_reg = offset,			\
++		.io_reg = offset + 0x4,			\
++		.pull_bit = 3,				\
++		.drv_bit = 0,				\
++		.oe_bit = -1,				\
++		.in_bit = -1,				\
++		.out_bit = 0,				\
++	}
++
++static const struct msm_special_pin_data sm6350_special_pins_data[] = {
++	[0] = UFS_RESET("ufs_reset", 0xae000),
++	[1] = SDC_PINGROUP("sdc1_rclk", 0xa1000, 15, 0),
++	[2] = SDC_PINGROUP("sdc1_clk", 0xa0000, 13, 6),
++	[3] = SDC_PINGROUP("sdc1_cmd", 0xa0000, 11, 3),
++	[4] = SDC_PINGROUP("sdc1_data", 0xa0000, 9, 0),
++	[5] = SDC_PINGROUP("sdc2_clk", 0xa2000, 14, 6),
++	[6] = SDC_PINGROUP("sdc2_cmd", 0xa2000, 11, 3),
++	[7] = SDC_PINGROUP("sdc2_data", 0xa2000, 9, 0),
++};
++
++static const char *sm6350_get_function_name(struct udevice *dev,
++					    unsigned int selector)
++{
++	return msm_pinctrl_functions[selector].name;
++}
++
++static const char *sm6350_get_pin_name(struct udevice *dev,
++				       unsigned int selector)
++{
++	if (selector >= 156 && selector <= 163)
++		snprintf(pin_name, MAX_PIN_NAME_LEN,
++			 sm6350_special_pins_data[selector - 156].name);
++	else
++		snprintf(pin_name, MAX_PIN_NAME_LEN, "gpio%u", selector);
++
++	return pin_name;
++}
++
++static int sm6350_get_function_mux(__maybe_unused unsigned int pin,
++				   unsigned int selector)
++{
++	return msm_pinctrl_functions[selector].val;
++}
++
++static struct msm_pinctrl_data sm6350_data = {
++	.pin_data = {
++		.pin_count = 164,
++		.special_pins_start = 156,
++		.special_pins_data = sm6350_special_pins_data,
++	},
++	.functions_count = ARRAY_SIZE(msm_pinctrl_functions),
++	.get_function_name = sm6350_get_function_name,
++	.get_function_mux = sm6350_get_function_mux,
++	.get_pin_name = sm6350_get_pin_name,
++};
++
++static const struct udevice_id msm_pinctrl_ids[] = {
++	{ .compatible = "qcom,sm6350-tlmm", .data = (ulong)&sm6350_data },
++	{ /* Sentinel */ }
++};
++
++U_BOOT_DRIVER(pinctrl_sm6350) = {
++	.name		= "pinctrl_sm6350",
++	.id		= UCLASS_NOP,
++	.of_match	= msm_pinctrl_ids,
++	.ops		= &msm_pinctrl_ops,
++	.bind		= msm_pinctrl_bind,
++};
+diff --git a/drivers/power/regulator/qcom-rpmh-regulator.c b/drivers/power/regulator/qcom-rpmh-regulator.c
+index 954deca5ed7..06466142560 100644
+--- a/drivers/power/regulator/qcom-rpmh-regulator.c
++++ b/drivers/power/regulator/qcom-rpmh-regulator.c
+@@ -456,6 +456,16 @@ static const struct rpmh_vreg_hw_data pmic5_pldo_lv = {
+ 	.n_modes = ARRAY_SIZE(pmic_mode_map_pmic5_ldo),
+ };
+ 
++static const struct rpmh_vreg_hw_data pmic5_nldo = {
++	.regulator_type = VRM,
++	.ops = &rpmh_regulator_vrm_drms_ops,
++	.voltage_range = REGULATOR_LINEAR_RANGE(320000, 0, 123, 8000),
++	.n_voltages = 124,
++	.hpm_min_load_uA = 30000,
++	.pmic_mode_map = pmic_mode_map_pmic5_ldo,
++	.n_modes = ARRAY_SIZE(pmic_mode_map_pmic5_ldo),
++};
++
+ static const struct rpmh_vreg_hw_data pmic5_nldo515 = {
+ 	.regulator_type = VRM,
+ 	.ops = &rpmh_regulator_vrm_drms_ops,
+@@ -493,6 +503,23 @@ static const struct rpmh_vreg_hw_data pmic5_pldo515_mv = {
+ 	.supply_name	= _supply_name, \
+ }
+ 
++static const struct rpmh_vreg_init_data pm6150l_vreg_data[] = {
++	/* smps1 - smps8 are not added to u-boot yet */
++	RPMH_VREG("ldo1",   "ldo%s1",  &pmic5_pldo_lv,   "vdd-l1-l8"),
++	RPMH_VREG("ldo2",   "ldo%s2",  &pmic5_nldo,      "vdd-l2-l3"),
++	RPMH_VREG("ldo3",   "ldo%s3",  &pmic5_nldo,      "vdd-l2-l3"),
++	RPMH_VREG("ldo4",   "ldo%s4",  &pmic5_pldo,      "vdd-l4-l5-l6"),
++	RPMH_VREG("ldo5",   "ldo%s5",  &pmic5_pldo,      "vdd-l4-l5-l6"),
++	RPMH_VREG("ldo6",   "ldo%s6",  &pmic5_pldo,      "vdd-l4-l5-l6"),
++	RPMH_VREG("ldo7",   "ldo%s7",  &pmic5_pldo,      "vdd-l7-l11"),
++	RPMH_VREG("ldo8",   "ldo%s8",  &pmic5_pldo,      "vdd-l1-l8"),
++	RPMH_VREG("ldo9",   "ldo%s9",  &pmic5_pldo,      "vdd-l9-l10"),
++	RPMH_VREG("ldo10",  "ldo%s10", &pmic5_pldo,      "vdd-l9-l10"),
++	RPMH_VREG("ldo11",  "ldo%s11", &pmic5_pldo,      "vdd-l7-l11"),
++	RPMH_VREG("bob",    "bob%s1",  &pmic5_bob,       "vdd-bob"),
++	{}
++};
++
+ static const struct rpmh_vreg_init_data pm8150_vreg_data[] = {
+ 	RPMH_VREG("ldo13",  "ldo%s13", &pmic5_pldo,      "vdd-l13-l16-l17"),
+ 	{}
+@@ -705,6 +732,10 @@ static int rpmh_regulators_bind(struct udevice *dev)
+ }
+ 
+ static const struct udevice_id rpmh_regulator_ids[] = {
++	{
++		.compatible = "qcom,pm6150l-rpmh-regulators",
++		.data = (ulong)pm6150l_vreg_data,
++	},
+ 	{
+ 		.compatible = "qcom,pm8150-rpmh-regulators",
+ 		.data = (ulong)pm8150_vreg_data,

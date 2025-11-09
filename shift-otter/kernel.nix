@@ -35,7 +35,7 @@ let
 in (buildLinux (args // {
   inherit src;
   #modDirVersion = "${modDirVersion}";
-  modDirVersion = "6.18.0-rc2-next-20251022";
+  modDirVersion = "6.18.0-rc4-next-20251107";
   enableCommonConfig = true;
 #  preferBuiltIn = true;
 #  ignoreConfigErrors = true;

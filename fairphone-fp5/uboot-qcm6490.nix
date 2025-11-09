@@ -15,11 +15,12 @@ buildUBoot {
     #url = "https://git.codelinaro.org/linaro/qcomlt/u-boot.git";
     #rev = "8295989d91f1a3297f1de3f9be50a1b44618bbe3";
     url = "https://github.com/u-boot/u-boot.git";
-    rev = "2ab10ed2399b0c1c790733884935c94ad65aa2a8";
+    rev = "b10c055d4e1b5153a331a61ef82a5b01b5bb4c45";
 #    allRefs = true;
   };
   patches = [
 #    ./cd-gpio.patch
+    ./gpio-luca.patch
   ];
   extraConfig = ''
     CONFIG_CMD_HASH=y

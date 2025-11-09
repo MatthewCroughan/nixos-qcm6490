@@ -1,11 +1,13 @@
 {
   inputs = {
-#    nixpkgs.url = "github:nixos/nixpkgs/9833723db2cdca89cbf96e7106ce75a6fbdbb3e7";
     nixpkgs.url = "github:nixos/nixpkgs/staging-next";
+    uboot = {
+      url = "github:u-boot/u-boot";
+      flake = false;
+    };
     linux = {
-#      url = "github:matthewcroughan/linux/gpu";
-      url = "git+file:/home/matthew/git/linux";
-#      url = "github:sc7280-mainline/linux/sc7280-6.16.y";
+      url = "github:sc7280-mainline/linux/sc7280-6.18-wip";
+#      url = "git+file:/home/matthew/git/linux";
       flake = false;
     };
     flake-parts.url = "github:hercules-ci/flake-parts";
@@ -14,6 +16,7 @@
     flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [ "aarch64-linux" ];
       imports = [
+        ./common
         ./shift-otter
         ./fairphone-fp5
       ];
