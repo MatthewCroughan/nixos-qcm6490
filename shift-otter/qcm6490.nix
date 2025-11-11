@@ -105,6 +105,7 @@
         #IP_NF_TARGET_REDIRECT = lib.mkForce lib.kernel.unset;
         DRM_NOUVEAU_GSP_DEFAULT = lib.mkForce lib.kernel.unset;
         DRM_NOVA = lib.mkForce lib.kernel.no;
+        VIDEO_QCOM_VENUS = lib.mkForce lib.kernel.no;
         DRM_TYR = lib.mkForce lib.kernel.no;
         ZPOOL = lib.mkForce lib.kernel.unset;
         CORESIGHT = lib.mkForce lib.kernel.no;

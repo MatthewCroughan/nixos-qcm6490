@@ -5,7 +5,7 @@ buildUBoot {
   version = "master";
   patches = [
     ./cd-gpio.patch # Required for making the SD Card work on shift-otter
-    ./gpio-luca.patch # Makes the volume up button work in u-boot/systemd-boot
+#    ./gpio-luca.patch # Makes the volume up button work in u-boot/systemd-boot
   ];
   extraConfig = ''
     CONFIG_CMD_HASH=y

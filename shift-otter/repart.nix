@@ -10,7 +10,7 @@ in
   systemd.repart.enable = true;
   systemd.repart.partitions."03-root".Type = "root";
   boot.initrd.systemd.enable = true;
-  boot.initrd.systemd.root = "gpt-auto";
+#  boot.initrd.systemd.root = "gpt-auto";
   boot.initrd.supportedFilesystems.ext4 = true;
 
   fileSystems."/".device = lib.mkForce "/dev/disk/by-label/nixos";

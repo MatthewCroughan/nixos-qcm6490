@@ -1,13 +1,13 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/staging-next";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     uboot = {
       url = "github:u-boot/u-boot";
       flake = false;
     };
     linux = {
-      url = "github:sc7280-mainline/linux/sc7280-6.18-wip";
-#      url = "git+file:/home/matthew/git/linux";
+#      url = "github:sc7280-mainline/linux/sc7280-6.18-wip";
+      url = "git+file:/home/matthew/git/linux";
       flake = false;
     };
     flake-parts.url = "github:hercules-ci/flake-parts";

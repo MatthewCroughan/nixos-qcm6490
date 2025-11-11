@@ -14,6 +14,9 @@
     volumeLabel = "nixos";
   };
 
+  networking.useNetworkd = true;
+  services.resolved.enable = true;
+
   boot.initrd.systemd.emergencyAccess = true;
 
   hardware.bluetooth.enable = true;
@@ -53,16 +56,17 @@
 #    "hid_generic"
 #  ];
 
-#  boot.initrd.kernelModules = lib.mkForce [
-#    "focaltech_ts"
+  boot.initrd.kernelModules = [
+    "focaltech_ts"
 #    "fsa4480"
 #    "gpi"
-#    "msm"
-#    "panel-shift-sh8804b"
+    "msm"
+    "qcom-iris"
+    "panel-shift-sh8804b"
 #    "pmic_glink"
 #    "qcom_glink_smem"
 #    "ucsi_glink"
-#  ];
+  ];
 
   boot.loader.grub.enable = false;
 

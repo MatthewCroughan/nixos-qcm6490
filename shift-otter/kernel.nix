@@ -34,8 +34,8 @@ let
   modDirVersion = "${kernelVersion.string}";
 in (buildLinux (args // {
   inherit src;
-  #modDirVersion = "${modDirVersion}";
-  modDirVersion = "6.18.0-rc4-next-20251107";
+  modDirVersion = "${modDirVersion}";
+  #modDirVersion = "6.18.0-rc5";
   enableCommonConfig = true;
 #  preferBuiltIn = true;
 #  ignoreConfigErrors = true;
