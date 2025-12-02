@@ -35,7 +35,6 @@ let
 in (buildLinux (args // {
   inherit src;
   modDirVersion = "${modDirVersion}";
-  #modDirVersion = "6.18.0-rc5";
   enableCommonConfig = true;
 #  preferBuiltIn = true;
 #  ignoreConfigErrors = true;
@@ -47,11 +46,11 @@ in (buildLinux (args // {
     hydraPlatforms = [ "" ];
   };
 } // (args.argsOverride or { }))).overrideAttrs (old: {
-  postUnpack = ''
-    patchShebangs source/lib/tests/module/gen_test_kallsyms.sh
-#    substituteInPlace source/arch/arm64/boot/dts/qcom/qcm6490-shift-otter.dts --replace-fail 'dr_mode = "otg"' 'dr_mode = "host"'
-#    cat arch/arm64/configs/defconfig arch/arm64/configs/otter_defconfig | uniq > defconfig
-#    mv defconfig arch/arm64/configs/otter_defconfig
-  '';
-  NIX_CFLAGS_COMPILE = "-Wno-error=return-type -Wno-error=implicit-function-declaration";
+#  postUnpack = ''
+#    patchShebangs source/lib/tests/module/gen_test_kallsyms.sh
+##    substituteInPlace source/arch/arm64/boot/dts/qcom/qcm6490-shift-otter.dts --replace-fail 'dr_mode = "otg"' 'dr_mode = "host"'
+##    cat arch/arm64/configs/defconfig arch/arm64/configs/otter_defconfig | uniq > defconfig
+##    mv defconfig arch/arm64/configs/otter_defconfig
+#  '';
+#  NIX_CFLAGS_COMPILE = "-Wno-error=return-type -Wno-error=implicit-function-declaration";
 })

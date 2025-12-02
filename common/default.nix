@@ -19,8 +19,15 @@
   };
   flake = {
     overlays.default = (self: super: {
-      ubootQCM6490 = super.callPackage ./uboot-qcm6490.nix {
+      ubootQCM6490ShiftOtter = super.callPackage ./uboot-qcm6490.nix {
         src = inputs.uboot;
+        extraMakeFlags = [ "DEVICE_TREE=qcom/qcm6490-shift-otter" ];
+        filesToInstall = ["u-boot*" "dts/upstream/src/arm64/qcom/qcm6490-shift-otter.dtb" ];
+      };
+      ubootQCM6490Fairphone5 = super.callPackage ./uboot-qcm6490.nix {
+        src = inputs.uboot;
+        extraMakeFlags = [ "DEVICE_TREE=qcom/qcm6490-fairphone-fp5" ];
+        filesToInstall = ["u-boot*" "dts/upstream/src/arm64/qcom/qcm6490-fairphone-fp5.dtb" ];
       };
     });
   };

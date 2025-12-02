@@ -1,8 +1,9 @@
 { pkgs, lib, inputs, ... }:
 {
-#  imports = [ ./unset.nix ];
-  hardware.deviceTree.name = "qcom/qcm6490-fairphone-fp5.dtb";
-  hardware.deviceTree.enable = true;
+  hardware.deviceTree = {
+    name = "qcom/qcm6490-fairphone-fp5.dtb";
+    enable = true;
+  };
   hardware.enableAllFirmware = true;
   nixpkgs.config.allowUnfree = true;
 
@@ -24,19 +25,29 @@
 
   boot.initrd.kernelModules = [
     "ufs-qcom"
+    "ufshcd-core"
     "ext4"
     "sd_mod"
     "sr_mod"
     "mmc_block"
 #    "ufshcd"
-    "ufshcd-core"
   ];
 
   boot.kernelPatches = [
+#    { name = "gpu"; patch = ./gpu.patch; }
+#{
+#  name = "drm-panic";
+#  patch = ./drm-panic.patch;
+#  structuredExtraConfig = {
+#    DRM_PANIC = lib.mkForce lib.kernel.yes;
+#    DRM_PANIC_DEBUG = lib.mkForce lib.kernel.yes;
+#  };
+#}
     {
       name = "config-disable-zboot";
       patch = null;
       structuredExtraConfig = {
+      #  ACPI_HOTPLUG_CPU = lib.mkForce lib.kernel.unset;
       #  ACPI_HOTPLUG_CPU = lib.mkForce lib.kernel.unset;
         #SND_SOC_SC8280XP = lib.mkForce lib.kernel.no;
         #SND_SOC_X1E80100 = lib.mkForce lib.kernel.no;
@@ -46,24 +57,59 @@
 #        DRM_PANIC_SCREEN = lib.mkForce lib.kernel.unset;
 #        DRM_PANIC_SCREEN_QR_CODE = lib.mkForce lib.kernel.unset;
 #
-        QCOM_Q6V5_COMMON = lib.mkForce lib.kernel.module;
-        QCOM_Q6V5_ADSP = lib.mkForce lib.kernel.module;
-        QCOM_RPROC_COMMON = lib.mkForce lib.kernel.module;
-        QCOM_Q6V5_WCSS = lib.mkForce lib.kernel.module;
-        QCOM_SYSMON = lib.mkForce lib.kernel.module;
-        QCOM_WCNSS_PIL = lib.mkForce lib.kernel.module;
+
+#        QCOM_Q6V5_COMMON = lib.mkForce lib.kernel.module;
+#        QCOM_Q6V5_ADSP = lib.mkForce lib.kernel.module;
+#        QCOM_RPROC_COMMON = lib.mkForce lib.kernel.module;
+#        QCOM_Q6V5_WCSS = lib.mkForce lib.kernel.module;
+#        QCOM_SYSMON = lib.mkForce lib.kernel.module;
+#        QCOM_WCNSS_PIL = lib.mkForce lib.kernel.module;
 #
-        QCOM_Q6V5_MSS = lib.mkForce lib.kernel.module;
-        QCOM_Q6V5_PAS = lib.mkForce lib.kernel.module;
-#        DRM_MSM  = lib.mkForce lib.kernel.module;
+#        QCOM_Q6V5_MSS = lib.mkForce lib.kernel.module;
+#        QCOM_Q6V5_PAS = lib.mkForce lib.kernel.module;
+
+
+##        DRM_MSM  = lib.mkForce lib.kernel.module;
 #        DRM_MSM_DPU  = lib.mkForce lib.kernel.module;
-      #  CRYPTO_AEGIS128_SIMD = lib.mkForce lib.kernel.no;
+#        USB_OTG = lib.mkForce lib.kernel.yes;
+#        DEVMEM = lib.mkForce lib.kernel.yes;
+#        IO_STRICT_DEVMEM = lib.mkForce lib.kernel.yes;
+#        VIRTIO_MMIO_CMDLINE_DEVICES = lib.mkForce lib.kernel.unset;
+#        TOUCHSCREEN_FOCALTECH_FT3658U = lib.mkForce lib.kernel.no;
+#        DRM_PANEL_SHIFT_SH8804B = lib.mkForce lib.kernel.module;
+#        FSL_ENETC =  lib.kernel.no;
+#        FSL_ENETC_CORE =  lib.kernel.unset;
+#        IP_NF_TARGET_REDIRECT = lib.mkForce lib.kernel.unset;
+#        FSL_ENETC_VF = lib.kernel.no;
+#        NXP_ENETC4  = lib.kernel.no;
+        #FSL_ENETC_IERB = lib.mkForce lib.kernel.unset;
+        #FSL_ENETC_MDIO = lib.mkForce lib.kernel.unset;
+        #FSL_ENETC_PTP_CLOCK = lib.mkForce lib.kernel.unset;
+        #FSL_ENETC_QOS = lib.mkForce lib.kernel.unset;
+
+#        CRYPTO_AEGIS128_SIMD = lib.mkForce lib.kernel.no;
       #  TOUCHSCREEN_GOODIX_BRL = lib.mkForce lib.kernel.no;
-        SND_SOC_SM8250 = lib.mkForce lib.kernel.module;
+#        TYPEC_MUX_PTN36502 = lib.mkForce lib.kernel.module;
+#        DRM_PANEL_RAYDIUM_RM692E5 = lib.mkForce lib.kernel.module;
+
+        SMB_SERVER = lib.mkForce lib.kernel.no;
+        #IP_NF_TARGET_REDIRECT = lib.mkForce lib.kernel.unset;
+        DRM_NOUVEAU_GSP_DEFAULT = lib.mkForce lib.kernel.unset;
+        DRM_NOVA = lib.mkForce lib.kernel.no;
+        VIDEO_QCOM_VENUS = lib.mkForce lib.kernel.no;
+        DRM_TYR = lib.mkForce lib.kernel.no;
+        ZPOOL = lib.mkForce lib.kernel.unset;
+        CORESIGHT = lib.mkForce lib.kernel.no;
+        HOTPLUG_PCI_PCIE = lib.mkForce lib.kernel.no;
+#        SCSI_UFS_QCOM = lib.mkForce lib.kernel.yes;
         EFI_ZBOOT = lib.mkForce lib.kernel.yes;
+#        DRM_PANEL_SHIFT_SH8804B = lib.mkForce lib.kernel.module;
         KERNEL_ZSTD = lib.mkForce lib.kernel.yes;
         RD_ZSTD = lib.mkForce lib.kernel.yes;
-        SCSI_UFSHCD = lib.mkForce lib.kernel.yes;
+        HID_MULTITOUCH = lib.mkForce lib.kernel.no;
+        DRM_XE = lib.mkForce lib.kernel.no;
+        EXT3_FS_POSIX_ACL = lib.mkForce lib.kernel.unset;
+        EXT3_FS_SECURITY = lib.mkForce lib.kernel.unset;
       };
       #extraStructuredConfig = {
       #  TOUCHSCREEN_GOODIX_BERLIN_SPI = lib.mkForce lib.kernel.module;

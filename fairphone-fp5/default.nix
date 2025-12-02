@@ -1,7 +1,7 @@
 { inputs, ... }: {
   perSystem = { config, self', inputs', pkgs, system, ... }: {
     packages.qcm6490-fairphone-fp5-uboot-bootimg = let
-      uboot = pkgs.callPackage ./uboot-qcm6490.nix {};
+      uboot = pkgs.ubootQCM6490Fairphone5;
     in pkgs.runCommand "qcm6490-fairphone-fp5-uboot-bootimg" { nativeBuildInputs = with pkgs; [
       android-tools
     ]; } ''
@@ -39,7 +39,6 @@
         -o $out \
         --cmdline "console=tty0 console=ttyMSM0,115200n8 boot.shell_on_fail root=PARTUUID=30de3e1e-1741-9b4f-8d42-b6a704339254 loglevel=8 init=${builtins.unsafeDiscardStringContext (inputs.self.nixosConfigurations.qcm6490-fairphone-fp5.config.system.build.toplevel)}/init"
     '';
-    packages.uboot-qcm6490-fairphone-fp5 = pkgs.callPackage ./uboot-qcm6490-fairphone-fp5.nix {};
   };
   flake = {
     nixosConfigurations.qcm6490-fairphone-fp5 = inputs.nixpkgs.lib.nixosSystem {
@@ -48,11 +47,7 @@
         inherit inputs;
       };
       modules = [
-        "${inputs.nixpkgs}/nixos/modules/profiles/minimal.nix"
-        ./qcm6490.nix
         ./configuration.nix
-        ./repart.nix
-        ../common/development.nix
       ];
     };
   };

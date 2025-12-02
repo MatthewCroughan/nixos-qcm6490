@@ -1,46 +1,86 @@
 {
   "nodes": {
+    "eden": {
+      "inputs": {
+        "flake-utils": "flake-utils",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1764197951,
+        "narHash": "sha256-xsPPlkgEjg4efdy5L4VYqv4x0GXrDHTI4OyNo37fYnQ=",
+        "owner": "matthewcroughan",
+        "repo": "eden-flake",
+        "rev": "c477331273803b2361fbf8f905a0b678f11e3dc0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "matthewcroughan",
+        "repo": "eden-flake",
+        "type": "github"
+      }
+    },
     "flake-parts": {
       "inputs": {
         "nixpkgs-lib": "nixpkgs-lib"
       },
       "locked": {
-        "lastModified": 1762440070,
-        "narHash": "sha256-xxdepIcb39UJ94+YydGP221rjnpkDZUlykKuF54PsqI=",
+        "lastModified": 1763759067,
+        "narHash": "sha256-LlLt2Jo/gMNYAwOgdRQBrsRoOz7BPRkzvNaI/fzXi2Q=",
         "owner": "hercules-ci",
         "repo": "flake-parts",
-        "rev": "26d05891e14c88eb4a5d5bee659c0db5afb609d8",
+        "rev": "2cccadc7357c0ba201788ae99c4dfa90728ef5e0",
         "type": "github"
       },
       "original": {
         "owner": "hercules-ci",
         "repo": "flake-parts",
+        "type": "github"
+      }
+    },
+    "flake-utils": {
+      "inputs": {
+        "systems": "systems"
+      },
+      "locked": {
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
         "type": "github"
       }
     },
     "linux": {
       "flake": false,
       "locked": {
-        "lastModified": 1762842193,
-        "narHash": "sha256-lp1a8NcrLtRCwffbkxyg9SeEGUGWrPPRB6rszlg3mvs=",
-        "ref": "refs/heads/xreal-attempt-24",
-        "rev": "b9631fc771c93b4f510a681152c264edd06f1f4c",
-        "revCount": 1397682,
-        "type": "git",
-        "url": "file:/home/matthew/git/linux"
+        "lastModified": 1764611168,
+        "narHash": "sha256-DuPMoDvwG4cEpCoOw4C7iHPlqciWZ7dSVaEQ3vPm2q0=",
+        "owner": "matthewcroughan",
+        "repo": "linux",
+        "rev": "c87db0353b01c8c3b132e3e183371783c283e95a",
+        "type": "github"
       },
       "original": {
-        "type": "git",
-        "url": "file:/home/matthew/git/linux"
+        "owner": "matthewcroughan",
+        "ref": "xreal-attempt-29",
+        "repo": "linux",
+        "type": "github"
       }
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1762596750,
-        "narHash": "sha256-rXXuz51Bq7DHBlfIjN7jO8Bu3du5TV+3DSADBX7/9YQ=",
+        "lastModified": 1764517877,
+        "narHash": "sha256-pp3uT4hHijIC8JUK5MEqeAWmParJrgBVzHLNfJDZxg4=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "b6a8526db03f735b89dd5ff348f53f752e7ddc8e",
+        "rev": "2d293cbfa5a793b4c50d17c05ef9e385b90edf6c",
         "type": "github"
       },
       "original": {
@@ -67,20 +107,36 @@
     },
     "root": {
       "inputs": {
+        "eden": "eden",
         "flake-parts": "flake-parts",
         "linux": "linux",
         "nixpkgs": "nixpkgs",
         "uboot": "uboot"
       }
     },
+    "systems": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
     "uboot": {
       "flake": false,
       "locked": {
-        "lastModified": 1762795856,
-        "narHash": "sha256-YnLmvn/niTd/39zXu/FECpGYSTZ3sVuN3Zv3mBWGAa0=",
+        "lastModified": 1764607065,
+        "narHash": "sha256-fNjIynKxhEzPpdoFCny4jCWq7N9aNwqqRCC+IM6MC9Q=",
         "owner": "u-boot",
         "repo": "u-boot",
-        "rev": "365a7079fb918643da0f0709660a7d8ea76dd6f3",
+        "rev": "c6ee44b5573a90b0a3a36cf858954e04439ae632",
         "type": "github"
       },
       "original": {

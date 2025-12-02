@@ -47,3 +47,6 @@ I was able to figure this out by `for i in `fd yupik`; do rg -H -i cd-gpio $i; d
 
 # display port + usb 2.0 is not working
 https://lore.kernel.org/all/1ab2f4f0-94e5-413b-a87b-190b288b5f32@linaro.org/
+
+# What pd mapper even is
+https://lwn.net/Articles/973399/

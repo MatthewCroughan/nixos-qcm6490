@@ -23,7 +23,7 @@ in
     partitions = {
       "10-esp" = {
         contents = {
-          "/EFI/EDK2-UEFI-SHELL/SHELL.EFI".source = "${pkgs.edk2-uefi-shell.overrideAttrs { env.NIX_CFLAGS_COMPILE = "-Wno-error=maybe-uninitialized"; }}/shell.efi";
+          "/EFI/EDK2-UEFI-SHELL/SHELL.EFI".source = "${pkgs.edk2-uefi-shell}/shell.efi";
           "/EFI/BOOT/BOOT${lib.toUpper efiArch}.EFI".source = "${pkgs.systemd}/lib/systemd/boot/efi/systemd-boot${efiArch}.efi";
           "/EFI/Linux/${config.system.boot.loader.ukiFile}".source = "${config.system.build.uki}/${config.system.boot.loader.ukiFile}";
           "/loader/loader.conf".source = pkgs.writeText "loader.conf" ''
