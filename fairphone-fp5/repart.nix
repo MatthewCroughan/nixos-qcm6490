@@ -5,6 +5,7 @@ in
 {
   imports = [ "${modulesPath}/image/repart.nix" ];
   boot.loader.grub.enable = false;
+  boot.loader.systemd-boot.enable = true;
 
   system.build.x = config.system.build.image.overrideAttrs {
     postPatch = ''

@@ -5,86 +5,8 @@
   modulesPath,
   ...
 }:
-{
-  imports = [
-    "${modulesPath}/profiles/minimal.nix"
-    ./device-tree.nix
-    ./repart.nix
-    ./fp5.nix
-    ../common/qcm6490.nix
-    #../common/development.nix
-    ../common/overlays
-    ../common/wireless.nix
-  ];
-
-  boot.kernelParams = [
-    "iommu=soft"
-    "clk_ignore_unused"
-    "pd_ignore_unused"
-    "arm64.nopauth"
-  ];
-
-  fileSystems."/".device = "/dev/disk/by-partlabel/userdata";
-  fileSystems."/".fsType = "ext4";
-
-  system.build.rootfsImage = pkgs.callPackage "${pkgs.path}/nixos/lib/make-ext4-fs.nix" {
-    storePaths = [
-      config.system.build.toplevel
-      config.boot.kernelPackages.kernel
-    ];
-    compressImage = false;
-    volumeLabel = "nixos";
-  };
-
-  #console.earlySetup = true;
-  #hardware.bluetooth.enable = true;
-
-  zramSwap = {
-    enable = true;
-    algorithm = "zstd";
-    memoryPercent = 90;
-  };
-
-  services.openssh = {
-    enable = true;
-    settings = {
-      PasswordAuthentication = false;
-      PermitRootLogin = lib.mkForce "no";
-    };
-    openFirewall = lib.mkForce true;
-  };
-  nix = {
-    settings = {
-      trusted-users = [
-        "@wheel"
-        "root"
-      ];
-      experimental-features = [
-        "nix-command"
-        "flakes"
-      ];
-    };
-  };
-  users.mutableUsers = false;
-  users.users.root.password = "default";
-  users.users.matthew = {
-    password = "default";
-    openssh.authorizedKeys.keys = [
-      "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIOJDRQfb1+7VK5tOe8W40iryfBWYRO6Uf1r2viDjmsJtAAAABHNzaDo= backup-yubikey"
-      "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIDgsWq+G/tcr6eUQYT7+sJeBtRmOMabgFiIgIV44XNc6AAAABHNzaDo= main-yubikey"
-      "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIJMi3TAuwDtIeO4MsORlBZ31HzaV5bji1fFBPcC9/tWuAAAABHNzaDo= nano-yubikey"
-    ];
-    isNormalUser = true;
-    extraGroups = [ "wheel" ];
-  };
-
-  networking.hostName = "qcm6490-fairphone-fp5";
-
-  hardware.enableAllFirmware = lib.mkForce true;
-
-  # https://gitlab.postmarketos.org/postmarketOS/pmaports/-/blob/master/device/testing/firmware-fairphone-fp5/APKBUILD#L27-29
-  hardware.firmware =
-    let
+let
+ firmware-fairphone-fp5 = let
       pil-squasher-src = pkgs.fetchFromGitHub {
         repo = "pil-squasher";
         owner = "linux-msm";
@@ -95,7 +17,6 @@
         builtins.readFile "${pil-squasher-src}/pil-squasher.c"
       );
     in
-    [
       (pkgs.stdenv.mkDerivation {
         name = "firmware-fairphone-fp5";
         src = pkgs.fetchFromGitHub {
@@ -163,10 +84,91 @@
           install -Dm644 wpss.mbn -t \
             "$out/lib/firmware/qcom/qcm6490/fairphone5/"
 
+          cp ${./aw882xx_acf.bin} $out/lib/firmware/aw88261_acf.bin
           ls -lah
         '';
-      })
+      });
+  in
+{
+  imports = [
+    "${modulesPath}/profiles/minimal.nix"
+    ./device-tree.nix
+    ./repart.nix
+    ./fp5.nix
+    ../common/qcm6490.nix
+    ../common/development.nix
+    ../common/overlays
+    ../common/wireless.nix
+  ];
+
+  boot.kernelParams = [
+    "iommu=soft"
+    "clk_ignore_unused"
+    "pd_ignore_unused"
+    "arm64.nopauth"
+  ];
+
+  fileSystems."/".device = "/dev/disk/by-partlabel/userdata";
+  fileSystems."/".fsType = "ext4";
+
+  system.build.rootfsImage = pkgs.callPackage "${pkgs.path}/nixos/lib/make-ext4-fs.nix" {
+    storePaths = [
+      config.system.build.toplevel
+      config.boot.kernelPackages.kernel
     ];
+    compressImage = false;
+    volumeLabel = "nixos";
+  };
+
+  #console.earlySetup = true;
+  #hardware.bluetooth.enable = true;
+
+  zramSwap = {
+    enable = true;
+    algorithm = "zstd";
+    memoryPercent = 90;
+  };
+
+  services.openssh = {
+    enable = true;
+    settings = {
+      PasswordAuthentication = false;
+      PermitRootLogin = lib.mkForce "no";
+    };
+    openFirewall = lib.mkForce true;
+  };
+  nix = {
+    settings = {
+      trusted-users = [
+        "@wheel"
+        "root"
+      ];
+      experimental-features = [
+        "nix-command"
+        "flakes"
+      ];
+    };
+  };
+  users.mutableUsers = false;
+  users.users.root.password = "0000";
+  users.users.matthew = {
+    password = "0000";
+    openssh.authorizedKeys.keys = [
+      "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIOJDRQfb1+7VK5tOe8W40iryfBWYRO6Uf1r2viDjmsJtAAAABHNzaDo= backup-yubikey"
+      "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIDgsWq+G/tcr6eUQYT7+sJeBtRmOMabgFiIgIV44XNc6AAAABHNzaDo= main-yubikey"
+      "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIJMi3TAuwDtIeO4MsORlBZ31HzaV5bji1fFBPcC9/tWuAAAABHNzaDo= nano-yubikey"
+    ];
+    isNormalUser = true;
+    extraGroups = [ "wheel" ];
+  };
+
+  networking.hostName = "qcm6490-fairphone-fp5";
+
+  hardware.enableAllFirmware = lib.mkForce true;
+
+  # https://gitlab.postmarketos.org/postmarketOS/pmaports/-/blob/master/device/testing/firmware-fairphone-fp5/APKBUILD#L27-29
+  hardware.firmware = [ firmware-fairphone-fp5 ];
+  environment.variables.FP5_FIRMWARE = firmware-fairphone-fp5;
 
   environment.systemPackages =
     let

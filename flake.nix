@@ -1,7 +1,7 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    #nixpkgs.url = "github:matthewcroughan/nixpkgs/50c82bd44855c7d970cccfac3ce720af1c4d6691";
+    nixpkgs.url = "github:nixos/nixpkgs/master";
+    #nixpkgs.url = "github:matthewcroughan/nixpkgs/db5aa38d96b5dbd37fbaf18e3d1e3200f0281ed8";
     eden = {
       url = "github:matthewcroughan/eden-flake";
       inputs.nixpkgs.follows = "nixpkgs"; # Do not override if using Cachix
@@ -11,8 +11,8 @@
       flake = false;
     };
     linux = {
-#      url = "github:sc7280-mainline/linux/sc7280-6.18-wip";
-      url = "github:matthewcroughan/linux/xreal-attempt-29";
+      url = "github:sc7280-mainline/linux/sc7280-6.18.y";
+#      url = "github:matthewcroughan/linux/xreal-attempt-30";
 #      url = "git+file:/home/matthew/git/linux";
       flake = false;
     };

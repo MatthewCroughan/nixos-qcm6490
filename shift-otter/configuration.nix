@@ -16,7 +16,7 @@
     ./repart.nix
     ../common/qcm6490.nix
     ../common/development.nix
-    ../common/wireless.nix
+#    ../common/wireless.nix
     ../common/overlays
   ];
 
@@ -41,7 +41,7 @@
 
   networking.useNetworkd = true;
   networking.networkmanager.enable = true;
-  networking.networkmanager.unmanaged = [ "wlan0" ];
+  networking.networkmanager.wifi.backend = "iwd";
   systemd.services.systemd-networkd-wait-online.restartIfChanged = false;
 
   services.resolved.enable = true;

@@ -49,13 +49,12 @@
 #      };
     })
   ];
- hardware.bluetooth.package = (builtins.getFlake "github:nixos/nixpkgs/fc756aa6f5d3e2e5666efcf865d190701fef150a").legacyPackages.aarch64-linux.bluez;
 #  nixpkgs.config.allowBroken = true;
   services.tailscale.enable = true;
   boot.loader.systemd-boot.enable = true;
   boot.loader.systemd-boot.configurationLimit = 10;
   boot.loader.efi.canTouchEfiVariables = true;
-  networking.modemmanager.enable = true;
+#  networking.modemmanager.enable = true;
 #  boot.kernelPatches = [
 #    {
 #      name = "drm-edid-xreal";
@@ -67,7 +66,7 @@
 ##      };
 #    }
 #  ];
-  services.monado.package = pkgs.callPackage ./monado.nix { inherit (pkgs.gst_all_1) gstreamer gst-plugins-base; };
+#  services.monado.package = pkgs.callPackage ./monado.nix { inherit (pkgs.gst_all_1) gstreamer gst-plugins-base; };
   services.monado.enable = true;
   services.monado.defaultRuntime = true;
 
@@ -101,27 +100,27 @@
   programs.sway.enable = true;
   programs.sway.package = pkgs.sway.override { enableXWayland = false; };
 
-    systemd.services.qca-bluetooth = let
-      script = pkgs.writeShellScript "qca-bluetooth.sh" ''
-        set -x
-        trap 'sleep 1' DEBUG # Sleep 1 second before every command execution
-        export PATH="${lib.makeBinPath (with pkgs; [ config.hardware.bluetooth.package coreutils-full gawk unixtools.script ])}:$PATH"
+  systemd.services.qca-bluetooth = let
+    script = pkgs.writeShellScript "qca-bluetooth.sh" ''
+      set -x
+      trap 'sleep 1' DEBUG # Sleep 1 second before every command execution
+      export PATH="${lib.makeBinPath (with pkgs; [ config.hardware.bluetooth.package coreutils-full gawk unixtools.script ])}:$PATH"
 
-        SERIAL=$(grep -o "serialno.*" /proc/cmdline | cut -d" " -f1)
-        BT_MAC=$(echo "$SERIAL-BT" | sha256sum | awk -v prefix=0200 '{printf("%s%010s\n", prefix, $1)}')
-        BT_MAC=$(echo "$BT_MAC" | cut -c1-12 | sed 's/\(..\)/\1:/g' | sed '$s/:$//')
+      SERIAL=$(grep -o "serialno.*" /proc/cmdline | cut -d" " -f1)
+      BT_MAC=$(echo "$SERIAL-BT" | sha256sum | awk -v prefix=0200 '{printf("%s%010s\n", prefix, $1)}')
+      BT_MAC=$(echo "$BT_MAC" | cut -c1-12 | sed 's/\(..\)/\1:/g' | sed '$s/:$//')
 
-        script -qc "btmgmt --timeout 3 -i hci0 power off"
-        script -qc "btmgmt --timeout 3 -i hci0 public-addr \"$BT_MAC\""
-      '';
-    in {
-      description = "Setup the bluetooth interface";
-      wantedBy = [ "multi-user.target" "bluetooth.service" ];
-      script = toString script;
-      serviceConfig = {
-        User = "root";
-        Type = "oneshot";
-        RemainAfterExit = true;
-      };
+      script -qc "btmgmt --timeout 3 -i hci0 power off"
+      script -qc "btmgmt --timeout 3 -i hci0 public-addr \"$BT_MAC\""
+    '';
+  in {
+    description = "Setup the bluetooth interface";
+    wantedBy = [ "multi-user.target" "bluetooth.service" ];
+    script = toString script;
+    serviceConfig = {
+      User = "root";
+      Type = "oneshot";
+      RemainAfterExit = true;
     };
+  };
 }

@@ -1,15 +1,19 @@
 # This file is in the gitignore, changes will be ignored. It exists so changes
 # can be tested but not committed accidentally.
-{ pkgs, ... }:
+{ pkgs, lib, config, ... }:
 {
+  systemd.services.phosh.environment.XDG_PICTURES_DIR = "/tmp";
+
   services.xserver.desktopManager.phosh = {
     enable = true;
     group = "users";
     user = "matthew";
   };
+  hardware.bluetooth.package = (builtins.getFlake "github:nixos/nixpkgs/fc756aa6f5d3e2e5666efcf865d190701fef150a").legacyPackages.aarch64-linux.bluez;
   programs.feedbackd.enable = true;
   programs.calls.enable = true;
   hardware.sensor.iio.enable = true;
+  systemd.packages = [ pkgs.stevia ];
   environment.systemPackages = with pkgs; [
     hexagonrpc
     snapshot
@@ -17,7 +21,7 @@
     #chatty              # IM and SMS
     snapshot
     epiphany            # Web browser
-    squeekboard
+    stevia
     gnome-console       # Terminal
 
     qrtr
@@ -109,4 +113,28 @@
   '';
   nixpkgs.overlays = [ (self: super: {
   }) ];
+  systemd.services.qca-bluetooth = let
+    script = pkgs.writeShellScript "qca-bluetooth.sh" ''
+      set -x
+      trap 'sleep 1' DEBUG # Sleep 1 second before every command execution
+      export PATH="${lib.makeBinPath (with pkgs; [ config.hardware.bluetooth.package coreutils-full gawk unixtools.script ])}:$PATH"
+
+      SERIAL=$(grep -o "serialno.*" /proc/cmdline | cut -d" " -f1)
+      BT_MAC=$(echo "$SERIAL-BT" | sha256sum | awk -v prefix=0200 '{printf("%s%010s\n", prefix, $1)}')
+      BT_MAC=$(echo "$BT_MAC" | cut -c1-12 | sed 's/\(..\)/\1:/g' | sed '$s/:$//')
+
+      script -qc "btmgmt --timeout 3 -i hci0 power off"
+      script -qc "btmgmt --timeout 3 -i hci0 public-addr \"$BT_MAC\""
+    '';
+  in {
+    description = "Setup the bluetooth interface";
+    wantedBy = [ "multi-user.target" "bluetooth.service" ];
+    script = toString script;
+    serviceConfig = {
+      User = "root";
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+  };
+  services.flatpak.enable = true;
 }
