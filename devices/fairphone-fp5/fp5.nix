@@ -15,8 +15,8 @@
     "qcom_glink_smem"
     "ucsi_glink"
     "snd-soc-aw88261"
-#    "snd-soc-sm8250"
-#    "snd-soc-sc7280"
+    #    "snd-soc-sm8250"
+    #    "snd-soc-sc7280"
   ];
   boot.extraModprobeConfig = ''
     softdep snd-soc-aw88261 pre: snd-soc-sm8250 snd-soc-sc7280

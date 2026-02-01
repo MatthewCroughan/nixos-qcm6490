@@ -1,6 +1,11 @@
-{ pkgs, lib, inputs, ... }:
 {
-#  imports = [ ./unset.nix ];
+  pkgs,
+  lib,
+  inputs,
+  ...
+}:
+{
+  #  imports = [ ./unset.nix ];
 
   # These need to load latest, hence mkAfter
   boot.initrd.kernelModules = lib.mkAfter [
@@ -16,24 +21,24 @@
     "ucsi_glink"
   ];
 
-#  hardware.deviceTree.overlays = [
-#    {
-#      name = "disable-venus";
-#      dtsText = ''
-#        /dts-v1/;
-#        /plugin/;
-#        / {
-#          compatible = "shift,otter";
-#          fragment@0 {
-#            target = <&venus>;
-#            __overlay__ {
-#              status = "disabled";
-#            };
-#          };
-#        };
-#      '';
-#    }
-#  ];
+  #  hardware.deviceTree.overlays = [
+  #    {
+  #      name = "disable-venus";
+  #      dtsText = ''
+  #        /dts-v1/;
+  #        /plugin/;
+  #        / {
+  #          compatible = "shift,otter";
+  #          fragment@0 {
+  #            target = <&venus>;
+  #            __overlay__ {
+  #              status = "disabled";
+  #            };
+  #          };
+  #        };
+  #      '';
+  #    }
+  #  ];
   hardware.enableAllFirmware = true;
   nixpkgs.config.allowUnfree = true;
 
@@ -49,19 +54,19 @@
     };
   };
 
-#  boot.kernelModules = [ "pstore_blk" ];
+  #  boot.kernelModules = [ "pstore_blk" ];
   boot.extraModprobeConfig = ''
     softdep pstore_blk pre: ufshcd-qcom ufshcd_core sd_mod scsi_mod
     options pstore_blk blkdev=/dev/sde58 kmsg_size=64 pmsg_size=64 console_size=64 best_effort=y
   '';
 
-#  boot.kernelPackages = pkgs.linuxPackagesFor (pkgs.callPackage ./kernel.nix {
-#    src = inputs.linux;
-#  });
+  #  boot.kernelPackages = pkgs.linuxPackagesFor (pkgs.callPackage ./kernel.nix {
+  #    src = inputs.linux;
+  #  });
 
-#  boot.loader = {
-#    systemd-boot.enable = true;
-#  };
+  #  boot.loader = {
+  #    systemd-boot.enable = true;
+  #  };
 
-#  boot.kernelPackages = pkgs.linuxPackagesFor (pkgs.callPackage ./kernel.nix { });
+  #  boot.kernelPackages = pkgs.linuxPackagesFor (pkgs.callPackage ./kernel.nix { });
 }

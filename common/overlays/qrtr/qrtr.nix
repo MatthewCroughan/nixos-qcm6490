@@ -1,4 +1,13 @@
-{ stdenv, lib, fetchFromGitHub, meson, cmake, pkg-config, systemd, ninja }:
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  meson,
+  cmake,
+  pkg-config,
+  systemd,
+  ninja,
+}:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "qrtr";
@@ -11,7 +20,12 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-iHjF/2SQsvB/qC/UykNITH/apcYSVD+n4xA0S/rIfnM=";
   };
 
-  nativeBuildInputs = [ meson cmake pkg-config ninja ];
+  nativeBuildInputs = [
+    meson
+    cmake
+    pkg-config
+    ninja
+  ];
 
   buildInputs = [ systemd ];
 

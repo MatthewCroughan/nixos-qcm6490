@@ -1,4 +1,10 @@
-{ modulesPath, pkgs, config, lib, ... }:
+{
+  modulesPath,
+  pkgs,
+  config,
+  lib,
+  ...
+}:
 let
   efiArch = pkgs.stdenv.hostPlatform.efiArch;
 in
@@ -10,7 +16,7 @@ in
   systemd.repart.enable = true;
   systemd.repart.partitions."03-root".Type = "root";
   boot.initrd.systemd.enable = true;
-#  boot.initrd.systemd.root = "gpt-auto";
+  #  boot.initrd.systemd.root = "gpt-auto";
   boot.initrd.supportedFilesystems.ext4 = true;
 
   fileSystems."/".device = lib.mkForce "/dev/disk/by-label/nixos";
@@ -24,8 +30,10 @@ in
       "10-esp" = {
         contents = {
           "/EFI/EDK2-UEFI-SHELL/SHELL.EFI".source = "${pkgs.edk2-uefi-shell}/shell.efi";
-          "/EFI/BOOT/BOOT${lib.toUpper efiArch}.EFI".source = "${pkgs.systemd}/lib/systemd/boot/efi/systemd-boot${efiArch}.efi";
-          "/EFI/Linux/${config.system.boot.loader.ukiFile}".source = "${config.system.build.uki}/${config.system.boot.loader.ukiFile}";
+          "/EFI/BOOT/BOOT${lib.toUpper efiArch}.EFI".source =
+            "${pkgs.systemd}/lib/systemd/boot/efi/systemd-boot${efiArch}.efi";
+          "/EFI/Linux/${config.system.boot.loader.ukiFile}".source =
+            "${config.system.build.uki}/${config.system.boot.loader.ukiFile}";
           "/loader/loader.conf".source = pkgs.writeText "loader.conf" ''
             timeout 5
             console-mode keep
@@ -46,7 +54,7 @@ in
       "20-root" = {
         storePaths = [ config.system.build.toplevel ];
         contents."/boot".source = pkgs.runCommand "boot" { } "mkdir $out";
-#        contents."/lib/firmware".source = "${config.hardware.firmware}/lib/firmware";
+        #        contents."/lib/firmware".source = "${config.hardware.firmware}/lib/firmware";
         repartConfig = {
           Type = "root";
           Format = "ext4";

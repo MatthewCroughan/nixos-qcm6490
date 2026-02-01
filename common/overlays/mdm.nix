@@ -27,7 +27,11 @@ stdenv.mkDerivation rec {
   '';
 
   nativeBuildInputs = [ pkg-config ];
-  buildInputs = [ util-linux lvm2 libmd ];
+  buildInputs = [
+    util-linux
+    lvm2
+    libmd
+  ];
 
   meta = {
     description = "A command-line tool that uses the device mapper to make block devices based on dynamic partitions";

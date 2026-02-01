@@ -1,18 +1,30 @@
-{ pkgs, lib, inputs, config, ... }:
+{
+  pkgs,
+  lib,
+  inputs,
+  config,
+  ...
+}:
 
 let
-  n1 = (pkgs.writeText "DoESLiverpool.psk" ''
-    [Security]
-    Passphrase=decafbad00
-  '');
-  n2 = (pkgs.writeText "gast-ost.psk" ''
-    [Security]
-    Passphrase=6isgpu9e
-  '');
-  n3 = (pkgs.writeText "DoESLiverpool-5g.psk" ''
-    [Security]
-    Passphrase=decafbad00
-  '');
+  n1 = (
+    pkgs.writeText "DoESLiverpool.psk" ''
+      [Security]
+      Passphrase=decafbad00
+    ''
+  );
+  n2 = (
+    pkgs.writeText "gast-ost.psk" ''
+      [Security]
+      Passphrase=6isgpu9e
+    ''
+  );
+  n3 = (
+    pkgs.writeText "DoESLiverpool-5g.psk" ''
+      [Security]
+      Passphrase=decafbad00
+    ''
+  );
 in
 {
   config = {

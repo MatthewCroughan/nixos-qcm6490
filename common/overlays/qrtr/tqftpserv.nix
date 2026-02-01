@@ -1,10 +1,24 @@
-{ stdenv, lib, fetchFromGitHub, qrtr, meson, zstd, pkg-config, systemd, ninja }:
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  qrtr,
+  meson,
+  zstd,
+  pkg-config,
+  systemd,
+  ninja,
+}:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "tqftpserv";
   version = "1.1";
 
-  buildInputs = [ qrtr zstd systemd ];
+  buildInputs = [
+    qrtr
+    zstd
+    systemd
+  ];
 
   src = fetchFromGitHub {
     owner = "linux-msm";
@@ -13,11 +27,15 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-Djw2rx1FXYYPXs6Htq7jWcgeXFvfCUoeidKtYUvTqZU=";
   };
 
-  nativeBuildInputs = [ meson pkg-config ninja ];
+  nativeBuildInputs = [
+    meson
+    pkg-config
+    ninja
+  ];
 
-#  patches = [
-#    ./tqftpserv-firmware-path.diff
-#  ];
+  #  patches = [
+  #    ./tqftpserv-firmware-path.diff
+  #  ];
 
   installFlags = [ "prefix=$(out)" ];
 

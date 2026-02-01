@@ -1,4 +1,9 @@
-{ pkgs, lib, inputs, ... }:
+{
+  pkgs,
+  lib,
+  inputs,
+  ...
+}:
 {
   hardware.enableAllFirmware = true;
   nixpkgs.config.allowUnfree = true;
@@ -9,7 +14,7 @@
     "gpio_sbu_mux"
     "phy-qcom-qmp-combo"
     "gpucc_sc7280"
-#    "dispcc_sc7280"
+    #    "dispcc_sc7280"
     "leds-qcom-flash"
 
     # My stuff
@@ -27,28 +32,27 @@
     "sr_mod"
     "mmc_block"
 
-
-"phy-qcom-snps-femto-v2"
-"phy-qcom-qmp-combo"
-"panel-raydium-rm692e5"
-"ufs-qcom"
-"phy-qcom-qmp-ufs"
-"simpledrm"
-"pmic_glink"
-"pmic_glink_altmode"
-"msm"
-"dispcc-sc7280"
-"fsa4480"
-"ptn36502"
-"libcomposite"
-"usb_f_ncm"
-"icc-osm-l3"
-"gpucc-sc7280"
-"qrtr-smd"
-"spi-geni-qcom"
-"i2c-qcom-geni"
-"qcom-pon"
-"goodix_berlin_spi"
+    "phy-qcom-snps-femto-v2"
+    "phy-qcom-qmp-combo"
+    "panel-raydium-rm692e5"
+    "ufs-qcom"
+    "phy-qcom-qmp-ufs"
+    "simpledrm"
+    "pmic_glink"
+    "pmic_glink_altmode"
+    "msm"
+    "dispcc-sc7280"
+    "fsa4480"
+    "ptn36502"
+    "libcomposite"
+    "usb_f_ncm"
+    "icc-osm-l3"
+    "gpucc-sc7280"
+    "qrtr-smd"
+    "spi-geni-qcom"
+    "i2c-qcom-geni"
+    "qcom-pon"
+    "goodix_berlin_spi"
   ];
 
   boot.kernelParams = [ "loglevel=8" ];
@@ -81,22 +85,23 @@
     }
   ];
 
-#  nixpkgs.hostPlatform = lib.recursiveUpdate (lib.systems.elaborate "aarch64-linux") {
-#    linux-kernel = {
-#      name = "aarch64-multiplatform";
-#      baseConfig = "defconfig";
-#      DTB = true;
-#      extraConfig = "";
-#      target = "vmlinuz.efi";
-#      installTarget = "zinstall";
-#    };
-#    gcc = {
-#      arch = "armv8-a";
-#    };
-#  };
+  #  nixpkgs.hostPlatform = lib.recursiveUpdate (lib.systems.elaborate "aarch64-linux") {
+  #    linux-kernel = {
+  #      name = "aarch64-multiplatform";
+  #      baseConfig = "defconfig";
+  #      DTB = true;
+  #      extraConfig = "";
+  #      target = "vmlinuz.efi";
+  #      installTarget = "zinstall";
+  #    };
+  #    gcc = {
+  #      arch = "armv8-a";
+  #    };
+  #  };
 
-  boot.kernelPackages = pkgs.linuxPackagesFor (pkgs.callPackage ./kernel.nix {
-    src = inputs.linux;
-  });
+  boot.kernelPackages = pkgs.linuxPackagesFor (
+    pkgs.callPackage ./kernel.nix {
+      src = inputs.linux;
+    }
+  );
 }
-

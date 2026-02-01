@@ -1,10 +1,19 @@
-{ stdenv, lib, fetchFromGitHub, qrtr, xz }:
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  qrtr,
+  xz,
+}:
 
 stdenv.mkDerivation {
   pname = "pd-mapper";
   version = "unstable-2025-11-03";
 
-  buildInputs = [ qrtr xz ];
+  buildInputs = [
+    qrtr
+    xz
+  ];
 
   src = fetchFromGitHub {
     owner = "linux-msm";
@@ -13,9 +22,9 @@ stdenv.mkDerivation {
     hash = "sha256-XiEZS+hb44nD1o1Xvjnrq5ead7Nym/Yg7iCnr93qC+k=";
   };
 
-#  patches = [
-#    ./pd-mapper-firmware-path.diff
-#  ];
+  #  patches = [
+  #    ./pd-mapper-firmware-path.diff
+  #  ];
 
   installFlags = [ "prefix=$(out)" ];
 

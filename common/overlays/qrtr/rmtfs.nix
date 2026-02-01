@@ -1,10 +1,21 @@
-{ stdenv, lib, fetchFromGitHub, udev, qrtr, qmic }:
+{
+  stdenv,
+  lib,
+  fetchFromGitHub,
+  udev,
+  qrtr,
+  qmic,
+}:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "rmtfs";
   version = "1.1.1";
 
-  buildInputs = [ udev qrtr qmic ];
+  buildInputs = [
+    udev
+    qrtr
+    qmic
+  ];
 
   src = fetchFromGitHub {
     owner = "andersson";
