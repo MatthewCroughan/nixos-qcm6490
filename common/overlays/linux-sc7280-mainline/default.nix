@@ -10,7 +10,7 @@ buildLinux rec {
     owner = "sc7280-mainline";
     repo = "linux";
     rev = "v${modDirVersion}-sc7280";
-    hash = "sha256-FwcAzJulaX6+w8yaWUCYhba7guO/459AEEvoDfY2pZ0=";
+    hash = "sha256-N2aBczTg3agYd7DpwFaiXZ3yY3Zn+sIW3qu8LmEFrJ8=";
   };
   extraMeta = {
     platforms = [ "aarch64-linux" ];
