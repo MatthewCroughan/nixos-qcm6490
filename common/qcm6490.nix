@@ -99,9 +99,5 @@
   #    };
   #  };
 
-  boot.kernelPackages = pkgs.linuxPackagesFor (
-    pkgs.callPackage ./kernel.nix {
-      src = inputs.linux;
-    }
-  );
+  boot.kernelPackages = pkgs.linuxPackages_sc7280-mainline;
 }

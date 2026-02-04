@@ -18,23 +18,6 @@
         "type": "github"
       }
     },
-    "linux": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1769179175,
-        "narHash": "sha256-N2aBczTg3agYd7DpwFaiXZ3yY3Zn+sIW3qu8LmEFrJ8=",
-        "owner": "sc7280-mainline",
-        "repo": "linux",
-        "rev": "6690b9582812e26cb157f064a977dc9671e6a284",
-        "type": "github"
-      },
-      "original": {
-        "owner": "sc7280-mainline",
-        "ref": "sc7280-6.18.y",
-        "repo": "linux",
-        "type": "github"
-      }
-    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1769789167,
@@ -69,7 +52,6 @@
     "root": {
       "inputs": {
         "flake-parts": "flake-parts",
-        "linux": "linux",
         "nixpkgs": "nixpkgs",
         "uboot": "uboot"
       }
