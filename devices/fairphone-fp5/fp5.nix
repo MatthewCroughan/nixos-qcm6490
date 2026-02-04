@@ -1,6 +1,7 @@
-{ lib, ... }:
+{ pkgs, ... }:
 {
-  boot.initrd.kernelModules = lib.mkAfter [
+  networking.hostName = "qcm6490-fairphone-fp5";
+  boot.initrd.kernelModules = [
     # Specific to fp5
     # https://gitlab.postmarketos.org/postmarketOS/pmaports/-/blob/master/device/testing/device-fairphone-fp5/modules-initfs
     "fsa4480"
@@ -21,4 +22,10 @@
   boot.extraModprobeConfig = ''
     softdep snd-soc-aw88261 pre: snd-soc-sm8250 snd-soc-sc7280
   '';
+  hardware.firmware = [ pkgs.firmware-fairphone-fp5 ];
+  hardware.deviceTree = {
+    name = "qcom/qcm6490-fairphone-fp5.dtb";
+    enable = true;
+  };
+
 }

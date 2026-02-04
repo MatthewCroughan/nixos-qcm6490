@@ -13,12 +13,6 @@ in
   boot.loader.grub.enable = false;
   boot.loader.systemd-boot.enable = true;
 
-  system.build.x = config.system.build.image.overrideAttrs {
-    postPatch = ''
-      export SYSTEMD_REPART_MKFS_OPTIONS_VFAT="-S 4096"
-    '';
-  };
-
   # Probably necessary for root resize
   systemd.repart.enable = true;
   systemd.repart.partitions."03-root".Type = "root";

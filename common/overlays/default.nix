@@ -18,6 +18,9 @@
         ];
       });
       mdm = super.callPackage ./mdm.nix {};
+      firmware-shift-otter = super.callPackage ./firmware-shift-otter {};
+      firmware-fairphone-fp5 = super.callPackage ./firmware-fairphone-fp5 {};
+      pil-squasher = super.callPackage ./pil-squasher {};
       #hexagonrpc = super.callPackage ./hexagonrpc.nix {};
       #qrtr = super.callPackage ./qrtr/qrtr.nix {};
       #qmic = super.callPackage ./qrtr/qmic.nix {};

@@ -1,15 +1,18 @@
 {
   pkgs,
-  lib,
-  inputs,
   ...
 }:
 {
-  #  imports = [ ./unset.nix ];
+  hardware.firmware = [ pkgs.firmware-shift-otter ];
+  boot.initrd.kernelModules = [
+    # IDK
+    "pmic_glink_altmode"
+    "gpio_sbu_mux"
+    "phy-qcom-qmp-combo"
+    "gpucc_sc7280"
+    "dispcc_sc7280"
+    "leds-qcom-flash"
 
-  # These need to load latest, hence mkAfter
-  boot.initrd.kernelModules = lib.mkAfter [
-    # Specific to shift otter
     # https://gitlab.postmarketos.org/postmarketOS/pmaports/-/blob/master/device/testing/device-shift-otter/modules-initfs
     "focaltech_ts"
     "fsa4480"
@@ -19,54 +22,15 @@
     "pmic_glink"
     "qcom_glink_smem"
     "ucsi_glink"
+
+    # My stuff
+    "ufs-qcom"
+    "ufshcd-core"
+    "qcom-iris"
   ];
-
-  #  hardware.deviceTree.overlays = [
-  #    {
-  #      name = "disable-venus";
-  #      dtsText = ''
-  #        /dts-v1/;
-  #        /plugin/;
-  #        / {
-  #          compatible = "shift,otter";
-  #          fragment@0 {
-  #            target = <&venus>;
-  #            __overlay__ {
-  #              status = "disabled";
-  #            };
-  #          };
-  #        };
-  #      '';
-  #    }
-  #  ];
-  hardware.enableAllFirmware = true;
-  nixpkgs.config.allowUnfree = true;
-
-  systemd.services."pstore-blk" = {
-    description = "Load pstore_blk after /dev/sde58 appears";
-    wantedBy = [ "sysinit.target" ];
-    after = [ "dev-sde58.device" ];
-    requires = [ "dev-sde58.device" ];
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = "${pkgs.kmod}/bin/modprobe pstore_blk";
-      RemainAfterExit = true;
-    };
+  networking.hostName = "qcm6490-shift-otter";
+  hardware.deviceTree = {
+    name = "qcom/qcm6490-shift-otter.dtb";
+    enable = true;
   };
-
-  #  boot.kernelModules = [ "pstore_blk" ];
-  boot.extraModprobeConfig = ''
-    softdep pstore_blk pre: ufshcd-qcom ufshcd_core sd_mod scsi_mod
-    options pstore_blk blkdev=/dev/sde58 kmsg_size=64 pmsg_size=64 console_size=64 best_effort=y
-  '';
-
-  #  boot.kernelPackages = pkgs.linuxPackagesFor (pkgs.callPackage ./kernel.nix {
-  #    src = inputs.linux;
-  #  });
-
-  #  boot.loader = {
-  #    systemd-boot.enable = true;
-  #  };
-
-  #  boot.kernelPackages = pkgs.linuxPackagesFor (pkgs.callPackage ./kernel.nix { });
 }

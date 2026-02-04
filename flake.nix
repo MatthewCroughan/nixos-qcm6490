@@ -16,7 +16,7 @@
       systems = [ "aarch64-linux" ];
       imports = [
         ./common
-        ./devices/default.nix
+        ./devices
       ];
     };
 }
