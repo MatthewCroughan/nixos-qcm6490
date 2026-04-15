@@ -23,6 +23,7 @@ in
   fileSystems."/".fsType = lib.mkForce "ext4";
   fileSystems."/boot".device = lib.mkForce "/dev/disk/by-label/ESP";
   fileSystems."/boot".fsType = lib.mkForce "vfat";
+
   image.repart = {
     name = "image";
     compression.enable = true;
