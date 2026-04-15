@@ -58,6 +58,8 @@ stdenv.mkDerivation {
       "$out/lib/firmware/qcom/qcm6490/fairphone5/venus.mbn"
     install -Dm644 wpss.mbn -t \
       "$out/lib/firmware/qcom/qcm6490/fairphone5/"
+    install -Dm644 aw882xx_acf.bin \
+      "$out/lib/firmware/qcom/qcm6490/fairphone5/aw88261_acf.bin"
     ls -lah
   '';
 }
