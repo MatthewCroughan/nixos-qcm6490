@@ -28,6 +28,7 @@
       #rmtfs = super.callPackage ./qrtr/rmtfs.nix {};
       #tqftpserv = super.callPackage ./qrtr/tqftpserv.nix {};
       #pd-mapper = super.callPackage ./qrtr/pd-mapper.nix {};
+      alsa-ucm-conf-sc7280 = super.callPackage ./alsa-ucm-conf-sc7280.nix {};
     })
   ];
 }

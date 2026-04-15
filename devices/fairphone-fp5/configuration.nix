@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 {
   imports = [
     ./repart.nix
@@ -33,4 +33,7 @@
     name = "qcom/qcm6490-fairphone-fp5.dtb";
     enable = true;
   };
+  environment.variables.ALSA_CONFIG_UCM2 = "${pkgs.alsa-ucm-conf-sc7280}/share/alsa/ucm2";
+  systemd.user.services.pipewire.environment.ALSA_CONFIG_UCM2 = config.environment.variables.ALSA_CONFIG_UCM2;
+  systemd.user.services.wireplumber.environment.ALSA_CONFIG_UCM2 = config.environment.variables.ALSA_CONFIG_UCM2;
 }
